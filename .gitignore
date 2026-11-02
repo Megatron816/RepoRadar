@@ -1,0 +1,20 @@
+# Gradle / build output
+.gradle/
+.kotlin/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# IDE state (keep shared run configs out too; they are machine specific)
+.idea/
+*.iml
+
+# Machine-specific and secret files
+local.properties
+*.jks
+*.keystore
+
+# OS noise
+.DS_Store
+Thumbs.db
