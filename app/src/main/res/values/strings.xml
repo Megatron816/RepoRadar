@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GitHub Profile Explorer</string>
+    <string name="app_logo_description">GitHub Profile Explorer logo</string>
     <string name="drawer_tagline">Explore developers and their code</string>
+    <string name="nav_home">Home</string>
+    <string name="home_title">Welcome to GitHub Profile Explorer</string>
+    <string name="home_body">Search GitHub profiles, compare developers, and explore repositories in one place.</string>
+    <string name="home_search">Search a profile</string>
+    <string name="home_compare">Compare profiles</string>
     <string name="developed_by">Developed by Arpit</string>
     <string name="developer_email">arpitsinha795@gmail.com</string>
     <string name="nav_profile">Profile</string>

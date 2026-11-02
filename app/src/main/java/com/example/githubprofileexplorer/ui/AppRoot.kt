@@ -43,11 +43,8 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -55,6 +52,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.githubprofileexplorer.R
 import com.example.githubprofileexplorer.data.local.DownloadStatus
 import com.example.githubprofileexplorer.data.model.GitHubRepo
@@ -108,7 +109,9 @@ fun AppRoot(
     val profileHistory by localVm.profileHistory.collectAsStateWithLifecycle()
     val remainingRequests by RateLimitMonitor.remaining.collectAsStateWithLifecycle()
 
-    var destination by rememberSaveable { mutableStateOf(Destination.Profile) }
+    val navController = rememberNavController()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val destination = Destination.fromRoute(backStackEntry?.destination?.route)
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -131,7 +134,10 @@ fun AppRoot(
     LaunchedEffect(deepLinkUsername) {
         if (deepLinkUsername != null) {
             profileVm.handleDeepLink(deepLinkUsername)
-            destination = Destination.Profile
+            navController.navigate(Destination.Profile.route) {
+                popUpTo(Destination.Home.route)
+                launchSingleTop = true
+            }
         }
     }
 
@@ -150,7 +156,9 @@ fun AppRoot(
                         message = "$startedMessage: ${event.repoName}",
                         actionLabel = viewLabel
                     )
-                    if (result == SnackbarResult.ActionPerformed) destination = Destination.Downloads
+                    if (result == SnackbarResult.ActionPerformed) {
+                        navController.navigate(Destination.Downloads.route)
+                    }
                 }
 
                 is DownloadsEvent.OpenFile -> if (!openDownloadedFile(context, event.uri)) {
@@ -167,20 +175,29 @@ fun AppRoot(
     }
 
     val goTo: (Destination) -> Unit = { target ->
-        destination = target
+        navController.navigate(target.route) {
+            launchSingleTop = true
+            restoreState = true
+        }
         scope.launch { drawerState.close() }
     }
 
-    BackHandler(enabled = !drawerState.isOpen && destination != Destination.Profile) {
-        destination = Destination.Profile
-    }
-    BackHandler(enabled = !drawerState.isOpen && showingDetail) {
-        profileVm.selectRepo(null)
+    BackHandler(enabled = !drawerState.isOpen && (destination != Destination.Home || showingDetail)) {
+        if (showingDetail) {
+            profileVm.selectRepo(null)
+        } else {
+            navController.navigate(Destination.Home.route) {
+                popUpTo(Destination.Home.route) { inclusive = false }
+                launchSingleTop = true
+            }
+        }
     }
 
     val openRepo: (GitHubRepo) -> Unit = { repo ->
         profileVm.selectRepo(repo)
-        destination = Destination.Repositories
+        navController.navigate(Destination.Repositories.route) {
+            launchSingleTop = true
+        }
     }
 
     val appContent: @Composable (showMenuButton: Boolean) -> Unit = { showMenuButton ->
@@ -219,8 +236,20 @@ fun AppRoot(
             }
         ) { innerPadding ->
             val contentModifier = Modifier.padding(innerPadding)
-            when (destination) {
-                Destination.Profile -> ProfileScreen(
+            NavHost(
+                navController = navController,
+                startDestination = Destination.Home.route,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                composable(Destination.Home.route) {
+                    HomeScreen(
+                        onSearch = { navController.navigate(Destination.Profile.route) },
+                        onCompare = { navController.navigate(Destination.Compare.route) },
+                        modifier = contentModifier
+                    )
+                }
+                composable(Destination.Profile.route) {
+                    ProfileScreen(
                     state = profileState,
                     activeDownloads = activeDownloads,
                     queuedRepos = queuedRepos,
@@ -229,15 +258,16 @@ fun AppRoot(
                     onExampleClick = profileVm::openUsername,
                     onRetryRepos = profileVm::retryRepositories,
                     onOpenRepo = openRepo,
-                    onSeeAllRepos = { destination = Destination.Repositories },
+                    onSeeAllRepos = { navController.navigate(Destination.Repositories.route) },
                     onDownload = downloadsVm::download,
                     onSaveToggle = { repo ->
                         if (repo.downloadKey() in queuedRepos) localVm.removeRepo(repo) else localVm.saveRepo(repo)
                     },
                     modifier = contentModifier
-                )
+                    )
+                }
 
-                Destination.Repositories ->
+                composable(Destination.Repositories.route) {
                     if (selectedRepo != null) {
                         RepoDetailScreen(
                             repo = selectedRepo,
@@ -263,37 +293,38 @@ fun AppRoot(
                             onSaveToggle = { repo ->
                                 if (repo.downloadKey() in queuedRepos) localVm.removeRepo(repo) else localVm.saveRepo(repo)
                             },
-                            onGoToProfile = { destination = Destination.Profile },
+                            onGoToProfile = { navController.navigate(Destination.Profile.route) },
                             modifier = contentModifier
                         )
                     }
+                }
 
-                Destination.Languages -> LanguagesScreen(
+                composable(Destination.Languages.route) { LanguagesScreen(
                     profile = profile,
-                    onGoToProfile = { destination = Destination.Profile },
+                    onGoToProfile = { navController.navigate(Destination.Profile.route) },
                     modifier = contentModifier
-                )
+                ) }
 
-                Destination.Contributions -> ContributionsScreen(
+                composable(Destination.Contributions.route) { ContributionsScreen(
                     profile = profile,
                     state = contributionsState,
-                    onSignIn = { destination = Destination.Account },
+                    onSignIn = { navController.navigate(Destination.Account.route) },
                     onRetry = {
                         profile?.let { contributionsVm.load(it.user.login, signedIn, force = true) }
                     },
-                    onGoToProfile = { destination = Destination.Profile },
+                    onGoToProfile = { navController.navigate(Destination.Profile.route) },
                     modifier = contentModifier
-                )
+                ) }
 
-                Destination.Compare -> CompareScreen(
+                composable(Destination.Compare.route) { CompareScreen(
                     state = compareState,
                     onLeftChange = compareVm::onLeftChange,
                     onRightChange = compareVm::onRightChange,
                     onCompare = compareVm::compare,
                     modifier = contentModifier
-                )
+                ) }
 
-                Destination.Downloads -> DownloadsScreen(
+                composable(Destination.Downloads.route) { DownloadsScreen(
                     history = history,
                     progress = progress,
                     onOpen = downloadsVm::open,
@@ -302,34 +333,34 @@ fun AppRoot(
                     onDelete = { downloadsVm.delete(it.id) },
                     onClearAll = downloadsVm::clearAll,
                     modifier = contentModifier
-                )
+                ) }
 
-                Destination.ReadingQueue -> ReadingQueueScreen(
+                composable(Destination.ReadingQueue.route) { ReadingQueueScreen(
                     items = readingQueue,
                     onOpen = { item ->
                         profileVm.selectRepo(item.toRepo())
-                        destination = Destination.Repositories
+                        navController.navigate(Destination.Repositories.route)
                     },
                     onStatusChange = localVm::updateStatus,
                     modifier = contentModifier
-                )
+                ) }
 
-                Destination.ProfileHistory -> ProfileHistoryScreen(
+                composable(Destination.ProfileHistory.route) { ProfileHistoryScreen(
                     items = profileHistory,
                     onOpen = { item ->
                         profileVm.openUsername(item.login)
-                        destination = Destination.Profile
+                        navController.navigate(Destination.Profile.route)
                     },
                     onRefresh = { item ->
                         localVm.refresh(item) { login ->
                             profileVm.openUsername(login)
-                            destination = Destination.Profile
+                            navController.navigate(Destination.Profile.route)
                         }
                     },
                     modifier = contentModifier
-                )
+                ) }
 
-                Destination.Account -> AccountScreen(
+                composable(Destination.Account.route) { AccountScreen(
                     state = authState,
                     isConfigured = authVm.isConfigured,
                     remainingRequests = remainingRequests,
@@ -337,7 +368,7 @@ fun AppRoot(
                     onCancel = authVm::cancel,
                     onSignOut = authVm::signOut,
                     modifier = contentModifier
-                )
+                ) }
             }
 
         }

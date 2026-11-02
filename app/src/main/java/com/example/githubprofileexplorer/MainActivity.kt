@@ -6,11 +6,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import com.example.githubprofileexplorer.di.AppViewModelFactory
 import com.example.githubprofileexplorer.domain.DeepLinkValidator
 import com.example.githubprofileexplorer.ui.AppRoot
+import com.example.githubprofileexplorer.ui.SplashScreen
 import com.example.githubprofileexplorer.ui.theme.GitHubProfileExplorerTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,6 +23,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private var deepLinkUsername by mutableStateOf<String?>(null)
+    private var showSplash by mutableStateOf(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,10 +31,18 @@ class MainActivity : ComponentActivity() {
         deepLinkUsername = DeepLinkValidator.username(intent?.data)
         setContent {
             GitHubProfileExplorerTheme {
-                AppRoot(
-                    viewModelFactory = viewModelFactory,
-                    deepLinkUsername = deepLinkUsername
-                )
+                if (showSplash) {
+                    SplashScreen()
+                    LaunchedEffect(Unit) {
+                        delay(900)
+                        showSplash = false
+                    }
+                } else {
+                    AppRoot(
+                        viewModelFactory = viewModelFactory,
+                        deepLinkUsername = deepLinkUsername
+                    )
+                }
             }
         }
     }

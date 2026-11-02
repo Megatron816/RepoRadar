@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -35,6 +36,9 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import coil3.compose.AsyncImage
 import com.example.githubprofileexplorer.R
 import com.example.githubprofileexplorer.data.model.GitHubRepo
@@ -124,6 +128,7 @@ fun ProfileScreen(
                 is SearchState.Success -> ProfileContent(
                     profile = search.profile,
                     reloadingRepos = search.reloadingRepos,
+                    focusManager = focusManager,
                     activeDownloads = activeDownloads,
                     onRetryRepos = onRetryRepos,
                     onOpenRepo = onOpenRepo,
@@ -145,6 +150,7 @@ private fun submit(focusManager: FocusManager, onSearch: () -> Unit) {
 private fun ProfileContent(
     profile: Profile,
     reloadingRepos: Boolean,
+    focusManager: FocusManager,
     activeDownloads: Set<String>,
     onRetryRepos: () -> Unit,
     onOpenRepo: (GitHubRepo) -> Unit,
@@ -154,9 +160,21 @@ private fun ProfileContent(
 ) {
     val insights = remember(profile.repos) { ProfileInsightsGenerator.generate(profile.repos) }
     val topRepos = remember(profile.repos) { profile.repos.sortedByDescending { it.stargazersCount }.take(3) }
+    val dismissKeyboardOnScroll = remember(focusManager) {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (source == NestedScrollSource.UserInput && available.y != 0f) {
+                    focusManager.clearFocus()
+                }
+                return Offset.Zero
+            }
+        }
+    }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(dismissKeyboardOnScroll),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {

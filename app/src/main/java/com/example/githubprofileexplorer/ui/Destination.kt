@@ -10,10 +10,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.githubprofileexplorer.R
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Home
 import com.example.githubprofileexplorer.ui.components.AppIcons
 
 /** Every feature of the app, in the order it appears in the sidebar. */
 enum class Destination(@StringRes val titleRes: Int) {
+    Home(R.string.nav_home),
     Profile(R.string.nav_profile),
     Repositories(R.string.nav_repositories),
     Languages(R.string.nav_languages),
@@ -26,6 +28,7 @@ enum class Destination(@StringRes val titleRes: Int) {
 
     val icon: ImageVector
         get() = when (this) {
+            Home -> Icons.Default.Home
             Profile -> Icons.Default.Person
             Repositories -> Icons.AutoMirrored.Filled.List
             Languages -> AppIcons.Code
@@ -36,4 +39,12 @@ enum class Destination(@StringRes val titleRes: Int) {
             ProfileHistory -> Icons.Default.History
             Account -> Icons.Default.AccountCircle
         }
+
+    val route: String
+        get() = name.lowercase()
+
+    companion object {
+        fun fromRoute(route: String?): Destination =
+            entries.firstOrNull { it.route == route } ?: Home
+    }
 }

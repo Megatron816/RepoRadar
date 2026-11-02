@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GitHub प्रोफ़ाइल एक्सप्लोरर</string>
+    <string name="app_logo_description">GitHub प्रोफ़ाइल एक्सप्लोरर लोगो</string>
     <string name="drawer_tagline">डेवलपर्स और उनके कोड को एक्सप्लोर करें</string>
     <string name="developed_by">Arpit द्वारा विकसित</string>
     <string name="developer_email">arpitsinha795@gmail.com</string>
