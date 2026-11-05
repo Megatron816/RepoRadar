@@ -5,6 +5,10 @@ import com.example.githubprofileexplorer.data.model.GithubUser
 import com.example.githubprofileexplorer.data.model.GraphQlRequest
 import com.example.githubprofileexplorer.data.model.GraphQlResponse
 import com.example.githubprofileexplorer.data.model.ReadmeResponse
+import com.example.githubprofileexplorer.data.model.RepositoryMetadata
+import com.example.githubprofileexplorer.data.model.GitTreeResponse
+import com.example.githubprofileexplorer.data.model.GitContentResponse
+import com.example.githubprofileexplorer.data.model.GitHubCommit
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -43,6 +47,40 @@ interface GithubRepoApi {
         @Path("owner") owner: String,
         @Path("repo") repo: String
     ): Response<ReadmeResponse>
+
+    @Headers("Accept: application/vnd.github+json")
+    @GET("repos/{owner}/{repo}")
+    suspend fun getRepository(
+        @Path("owner") owner: String,
+        @Path("repo") repo: String
+    ): Response<RepositoryMetadata>
+
+    @Headers("Accept: application/vnd.github+json")
+    @GET("repos/{owner}/{repo}/git/trees/{treeSha}")
+    suspend fun getTree(
+        @Path("owner") owner: String,
+        @Path("repo") repo: String,
+        @Path("treeSha", encoded = true) treeSha: String,
+        @Query("recursive") recursive: Int = 1
+    ): Response<GitTreeResponse>
+
+    @Headers("Accept: application/vnd.github+json")
+    @GET("repos/{owner}/{repo}/contents/{path}")
+    suspend fun getContent(
+        @Path("owner") owner: String,
+        @Path("repo") repo: String,
+        @Path("path", encoded = true) path: String,
+        @Query("ref", encoded = true) ref: String
+    ): Response<GitContentResponse>
+
+    @Headers("Accept: application/vnd.github+json")
+    @GET("repos/{owner}/{repo}/commits")
+    suspend fun getCommits(
+        @Path("owner") owner: String,
+        @Path("repo") repo: String,
+        @Query("per_page") perPage: Int = 30,
+        @Query("page") page: Int = 1
+    ): Response<List<GitHubCommit>>
 }
 
 /** Streams a repository snapshot as a ZIP archive. GitHub answers with a redirect to its CDN. */

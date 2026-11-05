@@ -28,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.githubprofileexplorer.R
@@ -37,6 +38,7 @@ import com.example.githubprofileexplorer.ui.components.CenteredContent
 import com.example.githubprofileexplorer.ui.components.EmptyState
 import com.example.githubprofileexplorer.ui.components.ErrorState
 import com.example.githubprofileexplorer.ui.components.LoadingState
+import com.example.githubprofileexplorer.ui.components.WrappingRow
 import com.example.githubprofileexplorer.ui.components.errorMessage
 
 enum class RepoSort { UPDATED, STARS, NAME }
@@ -49,10 +51,10 @@ fun RepositoriesScreen(
     onRetryRepos: () -> Unit,
     onOpenRepo: (GitHubRepo) -> Unit,
     onDownload: (GitHubRepo) -> Unit,
+    modifier: Modifier = Modifier,
     queuedRepos: Set<String> = emptySet(),
     onSaveToggle: (GitHubRepo) -> Unit = {},
-    onGoToProfile: () -> Unit,
-    modifier: Modifier = Modifier
+    onGoToProfile: () -> Unit
 ) {
     CenteredContent(modifier) {
         when {
@@ -124,13 +126,13 @@ private fun RepositoryList(
                     }
                 }
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            WrappingRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 SortChip(RepoSort.UPDATED, sort, R.string.sort_updated) { sort = it }
                 SortChip(RepoSort.STARS, sort, R.string.sort_stars) { sort = it }
                 SortChip(RepoSort.NAME, sort, R.string.sort_name) { sort = it }
             }
             Text(
-                stringResource(R.string.repositories_count, visible.size),
+                pluralStringResource(R.plurals.repositories_count, visible.size, visible.size),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

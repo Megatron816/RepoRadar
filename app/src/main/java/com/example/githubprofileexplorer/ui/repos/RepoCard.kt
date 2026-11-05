@@ -28,6 +28,7 @@ import com.example.githubprofileexplorer.ui.components.AppIcons
 import com.example.githubprofileexplorer.ui.components.HealthBadge
 import com.example.githubprofileexplorer.ui.components.LanguageLabel
 import com.example.githubprofileexplorer.ui.components.TagChip
+import com.example.githubprofileexplorer.ui.components.WrappingRow
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import com.example.githubprofileexplorer.ui.components.formatCount
@@ -41,9 +42,9 @@ fun RepoCard(
     downloading: Boolean,
     onClick: () -> Unit,
     onDownload: () -> Unit,
+    modifier: Modifier = Modifier,
     saved: Boolean = false,
-    onSaveToggle: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onSaveToggle: () -> Unit = {}
 ) {
     val health = remember(repo) { RepoHealthScorer().score(repo) }
     AppCard(modifier.fillMaxWidth(), onClick = onClick) {
@@ -70,13 +71,13 @@ fun RepoCard(
                 )
             }
             if (repo.fork || repo.archived) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                WrappingRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     if (repo.fork) TagChip(stringResource(R.string.tag_fork))
                     if (repo.archived) TagChip(stringResource(R.string.tag_archived))
                 }
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            WrappingRow(
+                verticalArrangement = Arrangement.spacedBy(6.dp),
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 repo.language?.takeIf { it.isNotBlank() }?.let { LanguageLabel(it) }
@@ -90,7 +91,12 @@ fun RepoCard(
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(Modifier.weight(1f))
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 IconButton(onClick = onSaveToggle) {
                     Icon(
                         if (saved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,

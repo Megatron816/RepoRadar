@@ -8,6 +8,8 @@ import com.example.githubprofileexplorer.ui.contributions.ContributionsViewModel
 import com.example.githubprofileexplorer.ui.downloads.DownloadsViewModel
 import com.example.githubprofileexplorer.ui.profile.ProfileViewModel
 import com.example.githubprofileexplorer.ui.local.LocalFeaturesViewModel
+import com.example.githubprofileexplorer.ui.portfolio.PortfolioViewModel
+import com.example.githubprofileexplorer.ui.architecture.ArchitectureViewModel
 
 class AppViewModelFactory(private val container: AppContainer) : ViewModelProvider.Factory {
 
@@ -38,6 +40,12 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
 
         modelClass.isAssignableFrom(LocalFeaturesViewModel::class.java) ->
             LocalFeaturesViewModel(container.localFeatureRepository)
+
+        modelClass.isAssignableFrom(PortfolioViewModel::class.java) ->
+            PortfolioViewModel(container.portfolioRepository, container.portfolioPdfGenerator)
+
+        modelClass.isAssignableFrom(ArchitectureViewModel::class.java) ->
+            ArchitectureViewModel(container.architectureRepository)
 
         else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     } as T

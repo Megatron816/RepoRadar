@@ -3,6 +3,7 @@ package com.example.githubprofileexplorer.ui.compare
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -57,26 +58,24 @@ fun CompareScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = state.left,
-                    onValueChange = onLeftChange,
-                    modifier = Modifier.weight(1f),
-                    label = { Text(stringResource(R.string.compare_developer_one)) },
-                    singleLine = true,
-                    shape = RoundedCornerShape(16.dp),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-                )
-                OutlinedTextField(
-                    value = state.right,
-                    onValueChange = onRightChange,
-                    modifier = Modifier.weight(1f),
-                    label = { Text(stringResource(R.string.compare_developer_two)) },
-                    singleLine = true,
-                    shape = RoundedCornerShape(16.dp),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(onSearch = { if (state.canCompare) submit() })
-                )
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                if (maxWidth < 500.dp) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CompareField(state.left, onLeftChange, R.string.compare_developer_one, ImeAction.Next)
+                        CompareField(
+                            state.right,
+                            onRightChange,
+                            R.string.compare_developer_two,
+                            ImeAction.Search,
+                            KeyboardActions(onSearch = { if (state.canCompare) submit() })
+                        )
+                    }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CompareField(state.left, onLeftChange, R.string.compare_developer_one, ImeAction.Next, modifier = Modifier.weight(1f))
+                        CompareField(state.right, onRightChange, R.string.compare_developer_two, ImeAction.Search, KeyboardActions(onSearch = { if (state.canCompare) submit() }), Modifier.weight(1f))
+                    }
+                }
             }
             Button(onClick = { submit() }, enabled = state.canCompare, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.compare_button))
@@ -92,6 +91,27 @@ fun CompareScreen(
 }
 
 @Composable
+private fun CompareField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: Int,
+    imeAction: ImeAction,
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier.fillMaxWidth(),
+        label = { Text(stringResource(label), maxLines = 1) },
+        singleLine = true,
+        shape = RoundedCornerShape(16.dp),
+        keyboardOptions = KeyboardOptions(imeAction = imeAction),
+        keyboardActions = keyboardActions
+    )
+}
+
+@Composable
 private fun ResultSection(result: CompareResult) {
     val left = result.left
     val right = result.right
@@ -103,14 +123,15 @@ private fun ResultSection(result: CompareResult) {
 
     AppCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            numericRow(R.string.followers, left.profile?.user?.followers, right.profile?.user?.followers, true)
-            numericRow(R.string.following, left.profile?.user?.following, right.profile?.user?.following, false)
-            numericRow(R.string.repos, left.profile?.user?.publicRepos, right.profile?.user?.publicRepos, true)
-            numericRow(R.string.compare_total_stars, left.totalStars, right.totalStars, true)
-            numericRow(R.string.compare_average_health, left.averageHealth, right.averageHealth, true, compact = false)
+            NumericRow(R.string.followers, left.profile?.user?.followers, right.profile?.user?.followers, true)
+            NumericRow(R.string.following, left.profile?.user?.following, right.profile?.user?.following, false)
+            NumericRow(R.string.repos, left.profile?.user?.publicRepos, right.profile?.user?.publicRepos, true)
+            NumericRow(R.string.compare_total_stars, left.totalStars, right.totalStars, true)
+            NumericRow(R.string.compare_average_health, left.averageHealth, right.averageHealth, true, compact = false)
             if (result.includesContributions) {
-                numericRow(R.string.compare_contributions, left.contributions, right.contributions, true)
+                NumericRow(R.string.compare_contributions, left.contributions, right.contributions, true)
             }
+
             MetricRow(
                 label = stringResource(R.string.compare_top_languages),
                 left = left.topLanguages.joinToString(", ").ifBlank { DASH },
@@ -129,14 +150,14 @@ private fun ResultSection(result: CompareResult) {
 }
 
 @Composable
-private fun numericRow(label: Int, left: Int?, right: Int?, highlight: Boolean, compact: Boolean = true) {
+private fun NumericRow(label: Int, left: Int?, right: Int?, highlight: Boolean, compact: Boolean = true) {
     val differ = left != null && right != null && left != right
     MetricRow(
         label = stringResource(label),
         left = left?.let { if (compact) formatCount(it) else it.toString() } ?: DASH,
         right = right?.let { if (compact) formatCount(it) else it.toString() } ?: DASH,
-        leftWins = highlight && differ && left!! > right!!,
-        rightWins = highlight && differ && right!! > left!!
+        leftWins = highlight && left != null && right != null && left > right,
+        rightWins = highlight && left != null && right != null && right > left
     )
 }
 
@@ -196,7 +217,9 @@ private fun MetricRow(label: String, left: String, right: String, leftWins: Bool
                 .padding(horizontal = 4.dp),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
         )
         ValueCell(right, rightWins, Modifier.weight(1f))
     }

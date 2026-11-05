@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -109,10 +112,27 @@ fun SectionCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
             }
             content()
         }
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun WrappingRow(
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(8.dp),
+    content: @Composable FlowRowScope.() -> Unit
+) {
+    FlowRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = horizontalArrangement,
+        verticalArrangement = verticalArrangement,
+        content = content
+    )
 }
 
 @Composable

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="repositories_count">
+        <item quantity="one">%1$d रिपॉज़िटरी</item>
+        <item quantity="other">%1$d रिपॉज़िटरी</item>
+    </plurals>
+    <plurals name="languages_subtitle">
+        <item quantity="one">%1$d सार्वजनिक रिपॉज़िटरी पर आधारित</item>
+        <item quantity="other">%1$d सार्वजनिक रिपॉज़िटरी पर आधारित</item>
+    </plurals>
+    <plurals name="languages_count">
+        <item quantity="one">%1$d भाषा</item>
+        <item quantity="other">%1$d भाषाएँ</item>
+    </plurals>
+    <plurals name="languages_repo_count">
+        <item quantity="one">%1$d रिपॉज़िटरी</item>
+        <item quantity="other">%1$d रिपॉज़िटरी</item>
+    </plurals>
+    <plurals name="heatmap_description">
+        <item quantity="one">योगदान हीटमैप: पिछले साल %1$d सक्रिय दिन और %2$d योगदान</item>
+        <item quantity="other">योगदान हीटमैप: पिछले साल %1$d सक्रिय दिन और %2$d योगदान</item>
+    </plurals>
+    <plurals name="downloads_summary">
+        <item quantity="one">%1$d डाउनलोड · %2$s सहेजे गए</item>
+        <item quantity="other">%1$d डाउनलोड · %2$s सहेजे गए</item>
+    </plurals>
+</resources>

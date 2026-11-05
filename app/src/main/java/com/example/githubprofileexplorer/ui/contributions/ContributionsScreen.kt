@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -140,7 +141,7 @@ private fun ContributionsContent(login: String, calendar: ContributionCalendar, 
 private fun Heatmap(calendar: ContributionCalendar, summary: ContributionSummary) {
     val colors = heatmapColors()
     val weeks = calendar.weeks
-    val description = stringResource(R.string.heatmap_description, summary.activeDays, summary.total)
+    val description = pluralStringResource(R.plurals.heatmap_description, summary.activeDays, summary.activeDays, summary.total)
     // Row index (Sunday = 0) is derived from the date; the first column may start mid-week.
     val cells = remember(calendar) {
         weeks.mapIndexed { column, week ->

@@ -62,19 +62,20 @@ class ProfileRepository(private val api: GithubApi) {
 
     private suspend fun fetchAllRepositories(username: String): List<GitHubRepo> {
         val all = mutableListOf<GitHubRepo>()
-        for (page in 1..MAX_PAGES) {
+        var page = 1
+        while (true) {
             val response = api.getRepositories(username, perPage = PAGE_SIZE, page = page)
             if (!response.isSuccessful) throw ProfileException(errorForCode(response.code()))
             val batch = response.body().orEmpty()
             all += batch
             if (batch.size < PAGE_SIZE) break
+            page++
         }
         return all
     }
 
     companion object {
         const val PAGE_SIZE = 100
-        const val MAX_PAGES = 5
 
         // GitHub logins: alphanumeric or single hyphens, no leading/trailing hyphen, max 39 chars.
         private val USERNAME_REGEX = Regex("^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$")

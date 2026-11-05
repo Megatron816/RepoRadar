@@ -42,6 +42,7 @@ import com.example.githubprofileexplorer.ui.components.MarkdownText
 import com.example.githubprofileexplorer.ui.components.SectionCard
 import com.example.githubprofileexplorer.ui.components.StatTile
 import com.example.githubprofileexplorer.ui.components.TagChip
+import com.example.githubprofileexplorer.ui.components.WrappingRow
 import com.example.githubprofileexplorer.ui.components.errorMessage
 import com.example.githubprofileexplorer.ui.components.formatCount
 import com.example.githubprofileexplorer.ui.components.formatIsoDate
@@ -54,9 +55,10 @@ fun RepoDetailScreen(
     readme: ReadmeState,
     downloading: Boolean,
     onDownload: () -> Unit,
+    onExploreArchitecture: () -> Unit = {},
+    modifier: Modifier = Modifier,
     saved: Boolean = false,
-    onSaveToggle: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onSaveToggle: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -78,10 +80,7 @@ fun RepoDetailScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     repo.description?.takeIf { it.isNotBlank() }?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
+                    WrappingRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         HealthBadge(health)
                         repo.language?.takeIf { it.isNotBlank() }?.let { LanguageLabel(it) }
                     }
@@ -117,6 +116,10 @@ fun RepoDetailScreen(
             OutlinedButton(onClick = onSaveToggle, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(if (saved) R.string.remove_from_queue else R.string.save_to_queue))
             }
+            Button(onClick = onExploreArchitecture, modifier = Modifier.fillMaxWidth()) {
+                Icon(AppIcons.Code, contentDescription = stringResource(R.string.architecture_title), modifier = Modifier.size(18.dp))
+                Text(stringResource(R.string.architecture_scan_button), Modifier.padding(start = 8.dp))
+            }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = { runCatching { uriHandler.openUri(repo.htmlUrl) } },
@@ -133,7 +136,10 @@ fun RepoDetailScreen(
 
             SectionCard(title = stringResource(R.string.health_title)) {
                 health.reasons.forEach { reason ->
-                    Text("•  ${healthReasonText(reason)}", style = MaterialTheme.typography.bodyMedium)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("•", style = MaterialTheme.typography.bodyMedium)
+                        Text(healthReasonText(reason), style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
             }
 
@@ -157,13 +163,19 @@ fun RepoDetailScreen(
 
 @Composable
 private fun InfoLine(label: Int, value: String) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
             stringResource(label),
+            modifier = Modifier.weight(0.42f),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Text(value, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            value,
+            modifier = Modifier.weight(0.58f),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = androidx.compose.ui.text.style.TextAlign.End
+        )
     }
 }
 

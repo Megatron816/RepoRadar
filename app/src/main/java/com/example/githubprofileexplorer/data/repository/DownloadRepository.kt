@@ -3,6 +3,7 @@ package com.example.githubprofileexplorer.data.repository
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
+import androidx.core.net.toUri
 import android.os.Environment
 import android.provider.MediaStore
 import com.example.githubprofileexplorer.data.local.DownloadDao
@@ -112,7 +113,7 @@ class DownloadRepository(
     /** True when the saved file can still be opened (the user may have removed it in a file manager). */
     suspend fun isFileAvailable(uriString: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            context.contentResolver.openFileDescriptor(Uri.parse(uriString), "r")?.use { true } ?: false
+            context.contentResolver.openFileDescriptor(uriString.toUri(), "r")?.use { true } ?: false
         } catch (e: Exception) {
             false
         }
@@ -222,7 +223,7 @@ class DownloadRepository(
 
     private fun deleteFile(uriString: String) {
         try {
-            context.contentResolver.delete(Uri.parse(uriString), null, null)
+            context.contentResolver.delete(uriString.toUri(), null, null)
         } catch (e: Exception) {
             // The file is already gone or no longer ours; nothing else to clean up.
         }

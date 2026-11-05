@@ -14,6 +14,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import com.example.githubprofileexplorer.ui.components.WrappingRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -50,7 +51,7 @@ fun ReadingQueueScreen(
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("${item.owner}/${item.repoName}", style = MaterialTheme.typography.titleMedium)
                     item.description?.takeIf { it.isNotBlank() }?.let { Text(it, maxLines = 2) }
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    WrappingRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         ReadingStatus.entries.forEach { status ->
                             FilterChip(
                                 selected = item.status == status,

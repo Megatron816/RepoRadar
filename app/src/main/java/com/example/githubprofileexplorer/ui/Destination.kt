@@ -11,12 +11,16 @@ import com.example.githubprofileexplorer.R
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.AccountTree
 import com.example.githubprofileexplorer.ui.components.AppIcons
 
 /** Every feature of the app, in the order it appears in the sidebar. */
 enum class Destination(@StringRes val titleRes: Int) {
     Home(R.string.nav_home),
     Profile(R.string.nav_profile),
+    Portfolio(R.string.nav_portfolio),
+    Architecture(R.string.nav_architecture),
     Repositories(R.string.nav_repositories),
     Languages(R.string.nav_languages),
     Contributions(R.string.nav_contributions),
@@ -30,6 +34,8 @@ enum class Destination(@StringRes val titleRes: Int) {
         get() = when (this) {
             Home -> Icons.Default.Home
             Profile -> Icons.Default.Person
+            Portfolio -> Icons.Default.Assessment
+            Architecture -> Icons.Default.AccountTree
             Repositories -> Icons.AutoMirrored.Filled.List
             Languages -> AppIcons.Code
             Contributions -> Icons.Default.DateRange

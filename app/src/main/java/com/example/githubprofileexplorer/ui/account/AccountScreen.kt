@@ -123,13 +123,13 @@ private fun VerificationCard(state: AuthState.AwaitingVerification, onCancel: ()
             letterSpacing = 4.sp,
             textAlign = TextAlign.Center
         )
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { copyCode(context, state.userCode) }, modifier = Modifier.weight(1f)) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = { copyCode(context, state.userCode) }, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.copy_code))
             }
             Button(
                 onClick = { runCatching { uriHandler.openUri(state.url) } },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.fillMaxWidth()
             ) { Text(stringResource(R.string.open_github)) }
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {

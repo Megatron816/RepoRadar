@@ -10,6 +10,9 @@ import com.example.githubprofileexplorer.data.repository.DownloadRepository
 import com.example.githubprofileexplorer.data.repository.ProfileRepository
 import com.example.githubprofileexplorer.data.repository.ReadmeRepository
 import com.example.githubprofileexplorer.data.repository.LocalFeatureRepository
+import com.example.githubprofileexplorer.data.repository.PortfolioRepository
+import com.example.githubprofileexplorer.data.repository.ArchitectureRepository
+import com.example.githubprofileexplorer.data.export.PortfolioPdfGenerator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,10 +33,20 @@ class AppContainer(context: Context) {
     val contributionService: ContributionService by lazy { ContributionService(network.graphQlApi) }
     val authRepository: AuthRepository by lazy { AuthRepository(tokenStore, network.oauthApi) }
     val downloadRepository: DownloadRepository by lazy {
+0
         DownloadRepository(appContext, database.downloadDao(), network.downloadApi, applicationScope)
     }
     val localFeatureRepository: LocalFeatureRepository by lazy {
         LocalFeatureRepository(database.readingQueueDao(), database.profileHistoryDao(), profileRepository)
+    }
+    val portfolioRepository: PortfolioRepository by lazy {
+        PortfolioRepository(database.portfolioDao())
+    }
+    val portfolioPdfGenerator: PortfolioPdfGenerator by lazy {
+        PortfolioPdfGenerator(appContext)
+    }
+    val architectureRepository: ArchitectureRepository by lazy {
+        ArchitectureRepository(network.repoApi, database.architectureDao())
     }
 
     fun onAppStart() {

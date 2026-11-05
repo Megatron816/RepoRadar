@@ -5,6 +5,7 @@ import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -49,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -76,7 +78,14 @@ import com.example.githubprofileexplorer.ui.local.ProfileHistoryScreen
 import com.example.githubprofileexplorer.ui.local.ReadingQueueScreen
 import com.example.githubprofileexplorer.ui.profile.ProfileScreen
 import com.example.githubprofileexplorer.ui.profile.ProfileViewModel
+import com.example.githubprofileexplorer.ui.portfolio.PortfolioViewModel
+import com.example.githubprofileexplorer.ui.portfolio.PortfolioScreen
+import com.example.githubprofileexplorer.ui.architecture.ArchitectureScreen
+import com.example.githubprofileexplorer.ui.architecture.ArchitectureViewModel
 import com.example.githubprofileexplorer.ui.profile.SearchState
+import com.example.githubprofileexplorer.data.export.PortfolioPdfShare
+import com.example.githubprofileexplorer.ui.portfolio.PortfolioExportState
+import com.example.githubprofileexplorer.ui.portfolio.PortfolioMessage
 import com.example.githubprofileexplorer.ui.repos.RepoDetailScreen
 import com.example.githubprofileexplorer.ui.repos.RepositoriesScreen
 import com.example.githubprofileexplorer.ui.repos.downloadKey
@@ -98,6 +107,8 @@ fun AppRoot(
     val compareVm: CompareViewModel = viewModel(factory = viewModelFactory)
     val downloadsVm: DownloadsViewModel = viewModel(factory = viewModelFactory)
     val localVm: LocalFeaturesViewModel = viewModel(factory = viewModelFactory)
+    val portfolioVm: PortfolioViewModel = viewModel(factory = viewModelFactory)
+    val architectureVm: ArchitectureViewModel = viewModel(factory = viewModelFactory)
 
     val profileState by profileVm.uiState.collectAsStateWithLifecycle()
     val authState by authVm.state.collectAsStateWithLifecycle()
@@ -107,6 +118,10 @@ fun AppRoot(
     val progress by downloadsVm.progress.collectAsStateWithLifecycle()
     val readingQueue by localVm.readingQueue.collectAsStateWithLifecycle()
     val profileHistory by localVm.profileHistory.collectAsStateWithLifecycle()
+    val portfolioState by portfolioVm.state.collectAsStateWithLifecycle()
+    val selectedProjects by portfolioVm.selectedProjects.collectAsStateWithLifecycle()
+    val portfolioExportState = portfolioState.exportState
+    val architectureState by architectureVm.state.collectAsStateWithLifecycle()
     val remainingRequests by RateLimitMonitor.remaining.collectAsStateWithLifecycle()
 
     val navController = rememberNavController()
@@ -130,6 +145,12 @@ fun AppRoot(
     val viewLabel = stringResource(R.string.view)
     val fileMissingMessage = stringResource(R.string.download_file_missing)
     val noViewerMessage = stringResource(R.string.download_no_viewer)
+    val noShareMessage = stringResource(R.string.download_no_share)
+    val sharePortfolioLabel = stringResource(R.string.share_portfolio)
+    val portfolioExportError = stringResource(R.string.portfolio_export_error)
+    val portfolioSaveError = stringResource(R.string.portfolio_save_error)
+    val portfolioRemoveError = stringResource(R.string.portfolio_remove_error)
+    val portfolioInvalidSelection = stringResource(R.string.portfolio_invalid_selection)
 
     LaunchedEffect(deepLinkUsername) {
         if (deepLinkUsername != null) {
@@ -141,10 +162,51 @@ fun AppRoot(
         }
     }
 
+    LaunchedEffect(profile?.user?.login, profile?.repos) {
+        profile?.let { portfolioVm.open(it.user) }
+    }
+
     LaunchedEffect(destination, profile?.user?.login, signedIn) {
         val login = profile?.user?.login
         if (destination == Destination.Contributions && login != null) {
             contributionsVm.load(login, signedIn)
+        }
+    }
+
+    LaunchedEffect(portfolioExportState) {
+        when (val export = portfolioExportState) {
+            is PortfolioExportState.Ready -> {
+                try {
+                    context.startActivity(
+                        Intent.createChooser(
+                            PortfolioPdfShare.shareIntent(context, export.file),
+                            sharePortfolioLabel
+                        )
+                    )
+                } catch (_: ActivityNotFoundException) {
+                    snackbarHostState.showSnackbar(noShareMessage)
+                }
+
+                portfolioVm.clearExportState()
+            }
+            PortfolioExportState.Error -> {
+                snackbarHostState.showSnackbar(portfolioExportError)
+                portfolioVm.clearExportState()
+            }
+            else -> Unit
+        }
+    }
+
+    LaunchedEffect(portfolioState.message) {
+        val message = when (portfolioState.message) {
+            PortfolioMessage.INVALID_SELECTION -> portfolioInvalidSelection
+            PortfolioMessage.SAVE_FAILED -> portfolioSaveError
+            PortfolioMessage.REMOVE_FAILED -> portfolioRemoveError
+            null -> null
+        }
+        if (message != null) {
+            snackbarHostState.showSnackbar(message)
+            portfolioVm.clearMessage()
         }
     }
 
@@ -166,7 +228,7 @@ fun AppRoot(
                 }
 
                 is DownloadsEvent.ShareFile -> if (!shareDownloadedFile(context, event.uri)) {
-                    scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.download_no_share)) }
+                    scope.launch { snackbarHostState.showSnackbar(noShareMessage) }
                 }
 
                 DownloadsEvent.FileMissing -> scope.launch { snackbarHostState.showSnackbar(fileMissingMessage) }
@@ -209,8 +271,10 @@ fun AppRoot(
                 TopAppBar(
                     title = {
                         Text(
-                            if (showingDetail) selectedRepo?.name.orEmpty()
-                            else stringResource(destination.titleRes)
+                            text = if (showingDetail) selectedRepo.name
+                            else stringResource(destination.titleRes),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     },
                     navigationIcon = {
@@ -244,7 +308,48 @@ fun AppRoot(
                 composable(Destination.Home.route) {
                     HomeScreen(
                         onSearch = { navController.navigate(Destination.Profile.route) },
+                        onPortfolio = { navController.navigate(Destination.Portfolio.route) },
                         onCompare = { navController.navigate(Destination.Compare.route) },
+                        recentProfiles = profileHistory,
+                        onOpenRecentProfile = { item ->
+                            profileVm.openUsername(item.login)
+                            navController.navigate(Destination.Profile.route)
+                        },
+                        onSeeAllRecentProfiles = {
+                            navController.navigate(Destination.ProfileHistory.route)
+                        },
+                        modifier = contentModifier
+                    )
+                }
+                composable(Destination.Portfolio.route) {
+                    PortfolioScreen(
+                        profile = profile,
+                        state = portfolioState,
+                        selectedProjects = selectedProjects,
+                        onOpenProfile = { navController.navigate(Destination.Profile.route) },
+                        onLanguageChange = portfolioVm::setLanguage,
+                        onTopicChange = portfolioVm::setTopic,
+                        onMinimumStarsChange = portfolioVm::setMinimumStars,
+                        onRecentDaysChange = portfolioVm::setRecentDays,
+                        onIncludeArchivedChange = portfolioVm::setIncludeArchived,
+                        onIncludeForksChange = portfolioVm::setIncludeForks,
+                        onSortChange = portfolioVm::setSort,
+                        onClearFilters = portfolioVm::clearFilters,
+                        onToggleSaved = portfolioVm::toggleSaved,
+                        onToggleProject = portfolioVm::toggleProject,
+                        onRefresh = profileVm::search,
+                        onExport = { profile?.let(portfolioVm::export) },
+                        modifier = contentModifier
+                    )
+                }
+                composable(Destination.Architecture.route) {
+                    ArchitectureScreen(
+                        state = architectureState,
+                        onQueryChange = architectureVm::setQuery,
+                        onModulesOnlyChange = architectureVm::setModulesOnly,
+                        onEcosystemChange = architectureVm::setEcosystem,
+                        onOpenSnapshot = architectureVm::open,
+                        onDeleteSnapshot = architectureVm::delete,
                         modifier = contentModifier
                     )
                 }
@@ -274,6 +379,10 @@ fun AppRoot(
                             readme = profileState.readme,
                             downloading = selectedRepo.downloadKey() in activeDownloads,
                             onDownload = { downloadsVm.download(selectedRepo) },
+                            onExploreArchitecture = {
+                                architectureVm.scan(selectedRepo.ownerLogin, selectedRepo.name, selectedRepo.defaultBranch)
+                                navController.navigate(Destination.Architecture.route)
+                            },
                             saved = selectedRepo.downloadKey() in queuedRepos,
                             onSaveToggle = {
                                 if (selectedRepo.downloadKey() in queuedRepos) localVm.removeRepo(selectedRepo)
@@ -505,7 +614,7 @@ private fun DrawerBody(
 /** Opens the saved ZIP in a viewer app, falling back to the system Downloads screen. */
 private fun openDownloadedFile(context: Context, uriString: String): Boolean {
     val view = Intent(Intent.ACTION_VIEW).apply {
-        setDataAndType(Uri.parse(uriString), "application/zip")
+        setDataAndType(uriString.toUri(), "application/zip")
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
     return try {
@@ -524,7 +633,7 @@ private fun openDownloadedFile(context: Context, uriString: String): Boolean {
 private fun shareDownloadedFile(context: Context, uriString: String): Boolean {
     val send = Intent(Intent.ACTION_SEND).apply {
         type = "application/zip"
-        putExtra(Intent.EXTRA_STREAM, Uri.parse(uriString))
+        putExtra(Intent.EXTRA_STREAM, uriString.toUri())
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
     return try {

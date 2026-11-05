@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="repositories_count">
+        <item quantity="one">%1$d repository</item>
+        <item quantity="other">%1$d repositories</item>
+    </plurals>
+    <plurals name="languages_subtitle">
+        <item quantity="one">Based on %1$d public repository</item>
+        <item quantity="other">Based on %1$d public repositories</item>
+    </plurals>
+    <plurals name="languages_count">
+        <item quantity="one">%1$d language</item>
+        <item quantity="other">%1$d languages</item>
+    </plurals>
+    <plurals name="languages_repo_count">
+        <item quantity="one">%1$d repo</item>
+        <item quantity="other">%1$d repos</item>
+    </plurals>
+    <plurals name="heatmap_description">
+        <item quantity="one">Contribution heatmap: %1$d active day and %2$d contributions in the last year</item>
+        <item quantity="other">Contribution heatmap: %1$d active days and %2$d contributions in the last year</item>
+    </plurals>
+    <plurals name="downloads_summary">
+        <item quantity="one">%1$d download · %2$s saved</item>
+        <item quantity="other">%1$d downloads · %2$s saved</item>
+    </plurals>
+</resources>

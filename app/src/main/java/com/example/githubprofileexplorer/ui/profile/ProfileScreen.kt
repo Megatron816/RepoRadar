@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.geometry.Offset
@@ -75,9 +76,9 @@ fun ProfileScreen(
     onOpenRepo: (GitHubRepo) -> Unit,
     onSeeAllRepos: () -> Unit,
     onDownload: (GitHubRepo) -> Unit,
+    modifier: Modifier = Modifier,
     queuedRepos: Set<String> = emptySet(),
     onSaveToggle: (GitHubRepo) -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -333,10 +334,11 @@ private fun SummaryCard(insights: ProfileInsights) {
                     ) {
                         Text(
                             "•",
+                            modifier = Modifier.width(16.dp),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
-                        Text(line, style = MaterialTheme.typography.bodyMedium)
+                        Text(line, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }

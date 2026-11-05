@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.githubprofileexplorer.R
@@ -86,8 +87,9 @@ fun DownloadsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        stringResource(
-                            R.string.downloads_summary,
+                        pluralStringResource(
+                            R.plurals.downloads_summary,
+                            history.size,
                             history.size,
                             Formatter.formatShortFileSize(context, totalBytes)
                         ),

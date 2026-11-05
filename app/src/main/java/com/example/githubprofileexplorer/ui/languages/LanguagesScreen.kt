@@ -20,6 +20,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -71,7 +72,7 @@ fun LanguagesScreen(
         ) {
             SectionCard(
                 title = stringResource(R.string.languages_title),
-                subtitle = stringResource(R.string.languages_subtitle, profile.repos.size)
+                subtitle = pluralStringResource(R.plurals.languages_subtitle, profile.repos.size, profile.repos.size)
             ) {
                 Box(
                     Modifier
@@ -112,7 +113,7 @@ fun LanguagesScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(slices.first().language, style = MaterialTheme.typography.titleMedium)
                         Text(
-                            stringResource(R.string.languages_count, slices.size),
+                            pluralStringResource(R.plurals.languages_count, slices.size, slices.size),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -130,7 +131,7 @@ fun LanguagesScreen(
                         LanguageDot(slice.language, size = 12.dp)
                         Text(slice.language, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
                         Text(
-                            stringResource(R.string.languages_repo_count, slice.repositories),
+                            pluralStringResource(R.plurals.languages_repo_count, slice.repositories, slice.repositories),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

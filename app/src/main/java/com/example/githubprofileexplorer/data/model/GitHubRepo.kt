@@ -22,13 +22,17 @@ data class GitHubRepo(
     val forksCount: Int = 0,
     @SerializedName("updated_at")
     val updatedAt: String? = null,
+    @SerializedName("created_at")
+    val createdAt: String? = null,
     @SerializedName("default_branch")
     val defaultBranch: String = "main",
     @SerializedName("full_name")
     val fullName: String? = null,
     val owner: GitHubOwner? = null,
     /** Repository size in kilobytes, as reported by GitHub. */
-    val size: Long = 0
+    val size: Long = 0,
+    /** Stable GitHub repository identifier, when returned by the API. */
+    val id: Long = 0L
 ) {
     /** Login of the account that owns this repository. */
     val ownerLogin: String

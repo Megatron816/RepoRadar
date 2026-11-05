@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GitHub प्रोफ़ाइल एक्सप्लोरर</string>
+    <string name="home_recent_profiles">हाल ही में देखी गई प्रोफ़ाइल</string>
     <string name="app_logo_description">GitHub प्रोफ़ाइल एक्सप्लोरर लोगो</string>
     <string name="drawer_tagline">डेवलपर्स और उनके कोड को एक्सप्लोर करें</string>
     <string name="developed_by">Arpit द्वारा विकसित</string>
@@ -63,7 +64,6 @@
     <string name="sort_updated">अपडेट</string>
     <string name="sort_stars">स्टार</string>
     <string name="sort_name">नाम</string>
-    <string name="repositories_count">%1$d रिपॉज़िटरी</string>
     <string name="no_matching_repos">कोई रिपॉज़िटरी आपके फ़िल्टर से मेल नहीं खाती।</string>
     <string name="repos_empty_title">कोई रिपॉज़िटरी नहीं</string>
     <string name="repos_empty">इस उपयोगकर्ता की कोई सार्वजनिक रिपॉज़िटरी नहीं है।</string>
@@ -99,10 +99,7 @@
     <string name="reason_archived">संग्रहीत</string>
     <string name="reason_forked">फ़ोर्क की गई रिपॉज़िटरी</string>
     <string name="languages_title">भाषाएँ</string>
-    <string name="languages_subtitle">%1$d सार्वजनिक रिपॉज़िटरी पर आधारित</string>
     <string name="languages_breakdown">विवरण</string>
-    <string name="languages_count">%1$d भाषाएँ</string>
-    <string name="languages_repo_count">%1$d रिपॉज़िटरी</string>
     <string name="languages_empty_title">कोई भाषा नहीं मिली</string>
     <string name="languages_empty">इस उपयोगकर्ता की किसी रिपॉज़िटरी में मुख्य भाषा दर्ज नहीं है।</string>
     <string name="contributions_title">योगदान</string>
@@ -114,7 +111,6 @@
     <string name="contributions_heatmap">गतिविधि हीटमैप</string>
     <string name="heatmap_less">कम</string>
     <string name="heatmap_more">ज़्यादा</string>
-    <string name="heatmap_description">योगदान हीटमैप: पिछले साल %1$d सक्रिय दिन और %2$d योगदान</string>
     <string name="contributions_signin_title">योगदान देखने के लिए साइन इन करें</string>
     <string name="contributions_signin_body">GitHub योगदान कैलेंडर केवल साइन-इन किए हुए ऐप्स के साथ साझा करता है।</string>
     <string name="compare_developer_one">डेवलपर एक</string>
@@ -134,7 +130,6 @@
     <string name="download_no_share">इस डिवाइस पर कोई ऐप ZIP फ़ाइल साझा नहीं कर सकता।</string>
     <string name="downloads_empty_title">अभी कोई डाउनलोड नहीं</string>
     <string name="downloads_empty_body">किसी भी रिपॉज़िटरी को उसके कार्ड या विवरण पृष्ठ से ZIP के रूप में डाउनलोड करें। वह यहाँ दिखेगी।</string>
-    <string name="downloads_summary">%1$d डाउनलोड · %2$s सहेजे गए</string>
     <string name="clear_history">सब साफ़ करें</string>
     <string name="clear_history_title">डाउनलोड इतिहास साफ़ करें?</string>
     <string name="clear_history_body">इससे हर प्रविष्टि हट जाएगी और ZIP फ़ाइलें आपके डाउनलोड फ़ोल्डर से भी हट जाएँगी।</string>
@@ -169,4 +164,7 @@
     <string name="auth_error_denied">GitHub पर अनुमति अस्वीकार कर दी गई।</string>
     <string name="auth_error_expired">कोड उपयोग से पहले समाप्त हो गया। कृपया फिर कोशिश करें।</string>
     <string name="auth_error_unknown">साइन-इन विफल रहा। कृपया फिर कोशिश करें।</string>
+    <string name="portfolio_save_error">रिपॉजिटरी को पोर्टफोलियो में नहीं जोड़ा जा सका। कृपया फिर से प्रयास करें।</string>
+    <string name="portfolio_remove_error">रिपॉजिटरी को पोर्टफोलियो से नहीं हटाया जा सका। कृपया फिर से प्रयास करें।</string>
+    <string name="portfolio_invalid_selection">यह प्रोफ़ाइल या रिपॉजिटरी मान्य नहीं है। प्रोफ़ाइल को फिर से खोजकर प्रयास करें।</string>
 </resources>
