@@ -6,9 +6,7 @@ import com.example.githubprofileexplorer.data.repository.ArchitectureError
 import com.example.githubprofileexplorer.data.repository.ArchitectureRepository
 import com.example.githubprofileexplorer.data.repository.ArchitectureScanResult
 import com.example.githubprofileexplorer.domain.ArchitectureGraph
-import com.example.githubprofileexplorer.domain.ArchitectureGraphAnalyzer
 import com.example.githubprofileexplorer.domain.ArchitectureEcosystem
-import com.example.githubprofileexplorer.domain.RepositorySignals
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,7 +43,13 @@ class ArchitectureViewModel(private val repository: ArchitectureRepository) : Vi
         scanJob = viewModelScope.launch {
             _state.update { it.copy(state = ArchitectureState.Loading) }
             val result = repository.scan(owner, name, branch)
-            _state.update { it.copy(state = result.fold(ArchitectureState::Success) { ArchitectureState.Error((it as? com.example.githubprofileexplorer.data.repository.ArchitectureException)?.error ?: ArchitectureError.UNKNOWN) }) }
+            _state.update {
+                it.copy(
+                    state = result.fold(ArchitectureState::Success) {
+                        ArchitectureState.Error((it as? com.example.githubprofileexplorer.data.repository.ArchitectureException)?.error ?: ArchitectureError.UNKNOWN)
+                    }
+                )
+            }
         }
     }
 

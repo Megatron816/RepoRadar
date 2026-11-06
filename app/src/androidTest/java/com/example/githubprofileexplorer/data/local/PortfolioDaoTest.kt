@@ -94,6 +94,44 @@ class PortfolioDaoTest {
     }
 
     @Test
+    fun selectingMultipleProjectsKeepsEarlierSelections() = runBlocking {
+        val repository = PortfolioRepository(dao)
+        val user = GithubUser(
+            login = "octocat",
+            name = "Octocat",
+            bio = null,
+            followers = 1,
+            following = 1,
+            publicRepos = 2,
+            avatarUrl = null,
+            id = 1
+        )
+        val secondProject = GitHubRepo(
+            name = "another-demo",
+            description = null,
+            language = "Kotlin",
+            htmlUrl = "https://github.com/octocat/another-demo",
+            topics = listOf("android"),
+            id = 3
+        )
+
+        repository.selectProject(user, GitHubRepo(
+            name = project.name,
+            description = project.description,
+            language = project.language,
+            htmlUrl = project.htmlUrl,
+            topics = project.topics,
+            id = project.githubId ?: 0
+        ))
+        repository.selectProject(user, secondProject)
+
+        assertEquals(
+            setOf(project.repositoryKey, secondProject.portfolioRepositoryKey()),
+            dao.observeProjects(profile.profileKey).first().map { it.repositoryKey }.toSet()
+        )
+    }
+
+    @Test
     fun invalidRepositoryIsRejectedWithoutWriting() = runBlocking {
         val repository = PortfolioRepository(dao)
         val user = GithubUser(

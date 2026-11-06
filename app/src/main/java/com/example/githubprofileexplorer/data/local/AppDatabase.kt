@@ -17,9 +17,9 @@ import androidx.room.RoomDatabase
         ArchitectureSnapshotEntity::class,
         ArchitectureNodeEntity::class,
         ArchitectureEdgeEntity::class,
-        ArchitectureWarningEntity::class
+        ArchitectureWarningEntity::class,
     ],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
 @androidx.room.TypeConverters(RoomConverters::class)
@@ -38,6 +38,8 @@ abstract class AppDatabase : RoomDatabase() {
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DATABASE_NAME)
                 .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .addMigrations(MIGRATION_4_5)
+                .addMigrations(MIGRATION_5_6)
+                .addMigrations(MIGRATION_6_7)
                 .build()
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -135,6 +137,41 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE architecture_nodes ADD COLUMN ecosystem TEXT NOT NULL DEFAULT 'GRADLE'")
                 db.execSQL("ALTER TABLE architecture_nodes ADD COLUMN projectRoot TEXT NOT NULL DEFAULT ''")
                 db.execSQL("ALTER TABLE architecture_edges ADD COLUMN sourceKind TEXT NOT NULL DEFAULT 'manifest'")
+            }
+
+        }
+
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS repository_analysis (
+                        analysisId TEXT NOT NULL PRIMARY KEY,
+                        snapshotKey TEXT NOT NULL,
+                        repositoryKey TEXT NOT NULL,
+                        branch TEXT NOT NULL,
+                        commitSha TEXT NOT NULL,
+                        scannedAt INTEGER NOT NULL,
+                        service TEXT NOT NULL,
+                        model TEXT,
+                        generatedAt INTEGER NOT NULL,
+                        schemaVersion INTEGER NOT NULL,
+                        evidenceIds TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        summary TEXT NOT NULL,
+                        findingsJson TEXT NOT NULL,
+                        limitationsJson TEXT NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_repository_analysis_snapshotKey ON repository_analysis(snapshotKey)")
+            }
+        }
+
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP INDEX IF EXISTS index_repository_analysis_snapshotKey")
+                db.execSQL("DROP TABLE IF EXISTS repository_analysis")
             }
         }
     }

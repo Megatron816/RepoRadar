@@ -25,11 +25,14 @@ interface PortfolioDao {
     suspend fun saveProfile(profile: PortfolioProfileEntity)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertProfileIfMissing(profile: PortfolioProfileEntity)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertProject(project: PortfolioProjectEntity)
 
     @Transaction
     suspend fun selectProject(profile: PortfolioProfileEntity, project: PortfolioProjectEntity) {
-        saveProfile(profile)
+        insertProfileIfMissing(profile)
         insertProject(project)
     }
 

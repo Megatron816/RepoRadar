@@ -62,7 +62,10 @@ fun ArchitectureScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) { CircularProgressIndicator() }
             is ArchitectureState.Error -> EmptyState(stringResource(R.string.architecture_error_title), architectureError(screen.error), Icons.Default.AccountTree)
-            is ArchitectureState.Success -> ArchitectureGraphContent(state, screen.result.graph, onQueryChange, onModulesOnlyChange, onEcosystemChange, onOpenSnapshot, onDeleteSnapshot)
+            is ArchitectureState.Success -> ArchitectureGraphContent(
+                state, screen.result.graph, onQueryChange, onModulesOnlyChange, onEcosystemChange,
+                onOpenSnapshot, onDeleteSnapshot
+            )
         }
     }
 }
@@ -104,6 +107,7 @@ private fun ArchitectureGraphContent(
                 }
                 ArchitectureCanvas(visibleGraph)
             }
+
         }
 
         item {
@@ -132,6 +136,7 @@ private fun ArchitectureGraphContent(
                         label = { Text(ecosystem.name) }
                     )
                 }
+
             }
         }
         item { Text(stringResource(R.string.architecture_outline), style = MaterialTheme.typography.titleMedium) }

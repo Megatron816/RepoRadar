@@ -15,6 +15,8 @@ val localProperties = Properties().apply {
 val oauthClientId: String = localProperties.getProperty("githubOAuthClientId")
     ?: providers.gradleProperty("githubOAuthClientId").orNull
     ?: ""
+fun String.toBuildConfigString(): String =
+    "\"" + replace("\\", "\\\\").replace("\"", "\\\"").replace("\r", "\\r").replace("\n", "\\n") + "\""
 
 android {
     namespace = "com.example.githubprofileexplorer"
@@ -30,7 +32,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "GITHUB_OAUTH_CLIENT_ID", "\"$oauthClientId\"")
+        buildConfigField("String", "GITHUB_OAUTH_CLIENT_ID", oauthClientId.toBuildConfigString())
     }
 
     buildTypes {

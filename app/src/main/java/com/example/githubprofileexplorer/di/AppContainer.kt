@@ -33,7 +33,6 @@ class AppContainer(context: Context) {
     val contributionService: ContributionService by lazy { ContributionService(network.graphQlApi) }
     val authRepository: AuthRepository by lazy { AuthRepository(tokenStore, network.oauthApi) }
     val downloadRepository: DownloadRepository by lazy {
-0
         DownloadRepository(appContext, database.downloadDao(), network.downloadApi, applicationScope)
     }
     val localFeatureRepository: LocalFeatureRepository by lazy {
@@ -48,7 +47,6 @@ class AppContainer(context: Context) {
     val architectureRepository: ArchitectureRepository by lazy {
         ArchitectureRepository(network.repoApi, database.architectureDao())
     }
-
     fun onAppStart() {
         applicationScope.launch { downloadRepository.markInterrupted() }
     }
