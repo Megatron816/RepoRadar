@@ -5,6 +5,7 @@ import com.example.githubprofileexplorer.data.auth.AuthRepository
 import com.example.githubprofileexplorer.data.auth.SecureTokenStore
 import com.example.githubprofileexplorer.data.local.AppDatabase
 import com.example.githubprofileexplorer.data.remote.NetworkModule
+import com.example.githubprofileexplorer.data.repository.GeminiRepository
 import com.example.githubprofileexplorer.data.repository.ContributionService
 import com.example.githubprofileexplorer.data.repository.DownloadRepository
 import com.example.githubprofileexplorer.data.repository.ProfileRepository
@@ -12,6 +13,7 @@ import com.example.githubprofileexplorer.data.repository.ReadmeRepository
 import com.example.githubprofileexplorer.data.repository.LocalFeatureRepository
 import com.example.githubprofileexplorer.data.repository.PortfolioRepository
 import com.example.githubprofileexplorer.data.repository.ArchitectureRepository
+import com.example.githubprofileexplorer.data.repository.ArchitectureAiRepository
 import com.example.githubprofileexplorer.data.export.PortfolioPdfGenerator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +49,8 @@ class AppContainer(context: Context) {
     val architectureRepository: ArchitectureRepository by lazy {
         ArchitectureRepository(network.repoApi, database.architectureDao())
     }
+    val geminiRepository: GeminiRepository by lazy { GeminiRepository(network.geminiApi) }
+    val architectureAiRepository: ArchitectureAiRepository by lazy { ArchitectureAiRepository(geminiRepository) }
     fun onAppStart() {
         applicationScope.launch { downloadRepository.markInterrupted() }
     }

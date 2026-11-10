@@ -19,7 +19,7 @@ import androidx.room.RoomDatabase
         ArchitectureEdgeEntity::class,
         ArchitectureWarningEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 @androidx.room.TypeConverters(RoomConverters::class)
@@ -40,6 +40,7 @@ abstract class AppDatabase : RoomDatabase() {
                 .addMigrations(MIGRATION_4_5)
                 .addMigrations(MIGRATION_5_6)
                 .addMigrations(MIGRATION_6_7)
+                .addMigrations(MIGRATION_7_8)
                 .build()
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -172,6 +173,13 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("DROP INDEX IF EXISTS index_repository_analysis_snapshotKey")
                 db.execSQL("DROP TABLE IF EXISTS repository_analysis")
+            }
+
+        }
+
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE architecture_snapshots ADD COLUMN scanStatsJson TEXT NOT NULL DEFAULT '{}'")
             }
         }
     }

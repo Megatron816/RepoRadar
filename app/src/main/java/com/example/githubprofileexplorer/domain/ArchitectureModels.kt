@@ -61,11 +61,25 @@ data class ArchitectureGraph(
     val detectedManifests: List<String> = emptyList(),
     val parsedManifests: List<String> = emptyList(),
     val unsupportedManifests: List<String> = emptyList(),
-    val completeness: String = if (partial) "partial" else "complete"
+    val completeness: String = if (partial) "partial" else "complete",
+    val scanStats: ArchitectureScanStats = ArchitectureScanStats()
 ) {
     val moduleCount get() = nodes.count { it.type == ArchitectureNodeType.MODULE }
     val dependencyCount get() = nodes.count { it.type == ArchitectureNodeType.EXTERNAL }
 }
+
+data class ArchitectureScanStats(
+    val totalFiles: Int = 0,
+    val totalDirectories: Int = 0,
+    val totalBytes: Long = 0,
+    val sourceFiles: Int = 0,
+    val extensionCounts: Map<String, Int> = emptyMap(),
+    val topLevelPaths: List<String> = emptyList(),
+    val manifestSizes: Map<String, Long> = emptyMap(),
+    val readmePath: String? = null,
+    val licensePath: String? = null,
+    val largestFiles: List<String> = emptyList()
+)
 
 data class GraphAnalysis(
     val cycles: List<List<String>>,

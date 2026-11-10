@@ -3,7 +3,7 @@
 An Android app (Kotlin, Jetpack Compose, Material 3) for exploring GitHub developers: profile, repositories,
 language mix, contribution heatmap, side-by-side comparison, and ZIP downloads with a persistent history.
 
-Data comes **only from GitHub's APIs** and a local **Room** database. There is no custom backend.
+Data comes from GitHub's APIs, Google's Gemini API, and a local **Room** database. There is no custom backend.
 
 ## Candidate portfolios
 
@@ -29,6 +29,7 @@ There is no universally accessible portfolio URL because the app has no public p
 | Sidebar entry | What it does |
 |---|---|
 | **Profile** | Search a username (or open a `github.com/<user>` link). Shows the profile card, an on-device **profile summary**, and the top repositories |
+| **Gemini AI** | Send a text prompt to Gemini Flash and display the generated response |
 | **Repositories** | Filter and sort (updated / stars / name) every repository, with a health badge. Tap one for details, README, share and download |
 | **Languages** | Donut chart and breakdown of the user's languages |
 | **Contributions** | GitHub-style heatmap with total, longest and current streak (needs sign-in) |
@@ -44,8 +45,10 @@ On tablets and foldables (width ≥ 840 dp) the sidebar is permanent; on phones 
 
 The summary is generated **on your device** from public repository data (languages, stars, topics, recent pushes,
 licenses). It is rule-based, not a language model, and needs no network call beyond the GitHub requests the
-app already makes. Calling a real AI model would require either a backend or an API key stored in the app,
-which this project deliberately avoids.
+app already makes. The Gemini screen uses the direct REST API without a custom backend. Configure `geminiApiKey` in
+`local.properties` before building. This is a prototype integration: `BuildConfig` values are packaged
+into the APK and do not protect the key from APK extraction. Use a backend or another server-side
+secret-management approach for production.
 
 ### Downloading repositories
 
@@ -118,7 +121,17 @@ establish that a dependency is safe or current.
    ```
 
    Without it everything works except Contributions and the higher rate limit. The Account screen explains this.
-3. Run the `app` configuration (minSdk 29).
+3. **Optional, for Gemini AI:** create a Gemini API key at
+   [Google AI Studio API keys](https://aistudio.google.com/apikey) and add it to the same
+   untracked `local.properties` file:
+
+   ```properties
+   geminiApiKey=AIza...
+   ```
+
+   Rebuild after changing the key. If it is absent, the rest of the app works and the Gemini screen
+   reports that configuration is missing.
+4. Run the `app` configuration (minSdk 29).
 
 Command line: `./gradlew assembleDebug`, `./gradlew testDebugUnitTest`, and `./gradlew connectedDebugAndroidTest` (Room DAO test, needs a device/emulator).
 

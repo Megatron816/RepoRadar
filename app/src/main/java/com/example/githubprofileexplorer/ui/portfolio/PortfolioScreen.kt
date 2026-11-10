@@ -120,14 +120,14 @@ fun PortfolioScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(stringResource(R.string.portfolio_actions), style = MaterialTheme.typography.labelLarge)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        Button(onClick = onToggleSaved, modifier = Modifier.weight(1f)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        Button(onClick = onToggleSaved, modifier = Modifier.fillMaxWidth()) {
                             Text(stringResource(if (state.saved) R.string.remove_saved_profile else R.string.save_profile))
                         }
                         OutlinedButton(
                             onClick = onExport,
                             enabled = state.exportState !is PortfolioExportState.Generating,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(Icons.Default.Share, contentDescription = stringResource(R.string.share_portfolio))
                             if (state.exportState is PortfolioExportState.Generating) {
@@ -168,19 +168,19 @@ fun PortfolioScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         OutlinedTextField(
                             value = state.minimumStarsText,
                             onValueChange = onMinimumStarsChange,
                             label = { Text(stringResource(R.string.minimum_stars)) },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
                         OutlinedTextField(
                             value = state.recentDaysText,
                             onValueChange = onRecentDaysChange,
                             label = { Text(stringResource(R.string.updated_within_days)) },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
                     }
@@ -247,7 +247,10 @@ fun PortfolioScreen(
                 }
             }
             item {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     Text(stringResource(R.string.selected_projects), style = MaterialTheme.typography.titleMedium)
                     Text(
                         stringResource(R.string.selected_projects_count, selectedProjects.size),
@@ -271,12 +274,18 @@ fun PortfolioScreen(
                 val isSelected = key in selectedKeys
                 SectionCard(title = repo.name) {
                     Text(repo.description ?: stringResource(R.string.no_description))
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    WrappingRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
                         Text(
                             repo.language ?: stringResource(R.string.language_not_specified),
                             style = MaterialTheme.typography.labelMedium
                         )
-                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
                             Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.height(16.dp))
                             Text(stringResource(R.string.repository_stars, repo.stargazersCount), style = MaterialTheme.typography.labelMedium)
                         }

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.AccountTree
+import androidx.compose.material.icons.filled.AutoAwesome
 import com.example.githubprofileexplorer.ui.components.AppIcons
 
 /** Every feature of the app, in the order it appears in the sidebar. */
@@ -21,6 +22,7 @@ enum class Destination(@StringRes val titleRes: Int) {
     Profile(R.string.nav_profile),
     Portfolio(R.string.nav_portfolio),
     Architecture(R.string.nav_architecture),
+    Gemini(R.string.nav_gemini),
     Repositories(R.string.nav_repositories),
     Languages(R.string.nav_languages),
     Contributions(R.string.nav_contributions),
@@ -36,6 +38,7 @@ enum class Destination(@StringRes val titleRes: Int) {
             Profile -> Icons.Default.Person
             Portfolio -> Icons.Default.Assessment
             Architecture -> Icons.Default.AccountTree
+            Gemini -> Icons.Default.AutoAwesome
             Repositories -> Icons.AutoMirrored.Filled.List
             Languages -> AppIcons.Code
             Contributions -> Icons.Default.DateRange

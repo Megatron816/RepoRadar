@@ -15,6 +15,8 @@ import com.example.githubprofileexplorer.domain.RepositoryRef
 import com.example.githubprofileexplorer.domain.ManifestParserRegistry
 import com.example.githubprofileexplorer.domain.ArchitectureEcosystem
 import com.example.githubprofileexplorer.domain.RepositorySignals
+import com.example.githubprofileexplorer.domain.ArchitectureScanStats
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -53,8 +55,10 @@ class ArchitectureRepository(
                 }.toMap()
                 val parsed = ManifestParserRegistry.parse(files)
                 val partial = tree.truncated || candidates.size >= MAX_MANIFESTS || files.size < candidates.size
+                val scanStats = tree.tree.toScanStats(candidates)
                 val ref = RepositoryRef(metadata.id, owner, name, branch)
                 val graph = ArchitectureGraphAnalyzer.build(ref, tree.sha, parsed, partial)
+                    .copy(scanStats = scanStats)
                 val commits = api.getCommits(owner, name, perPage = 20).body().orEmpty()
                 val signals = RepositorySignals(
                     metadata.pushedAt,
@@ -94,8 +98,8 @@ class ArchitectureRepository(
     }
 
     companion object {
-        const val MAX_MANIFESTS = 40
-        const val MAX_FILE_BYTES = 100_000L
+        const val MAX_MANIFESTS = 80
+        const val MAX_FILE_BYTES = 256_000L
         private val REPOSITORY = Regex("^[A-Za-z0-9_.-]+$")
         private val BRANCH = Regex("^[A-Za-z0-9._/-]{1,255}$")
         fun validateIdentifier(owner: String, name: String) {
@@ -122,7 +126,7 @@ private fun ArchitectureGraph.toBundle(signals: RepositorySignals): Architecture
         key, repository.key, repository.id, repository.owner, repository.name, repository.branch,
         commitSha, scannedAt, partial, warnings.size, signals.encode(), completeness,
         detectedManifests.joinToString("\u001F"), parsedManifests.joinToString("\u001F"),
-        unsupportedManifests.joinToString("\u001F")
+        unsupportedManifests.joinToString("\u001F"), Gson().toJson(scanStats)
     )
     return ArchitectureSnapshotBundle(
         entity,
@@ -147,9 +151,41 @@ private fun ArchitectureSnapshotBundle.toScanResult(): ArchitectureScanResult {
         snapshot.detectedManifests.split("\u001F").filter(String::isNotBlank),
         snapshot.parsedManifests.split("\u001F").filter(String::isNotBlank),
         snapshot.unsupportedManifests.split("\u001F").filter(String::isNotBlank),
-        snapshot.completeness
+        snapshot.completeness,
+        runCatching { Gson().fromJson(snapshot.scanStatsJson, ArchitectureScanStats::class.java) }
+            .getOrDefault(ArchitectureScanStats())
     )
     return ArchitectureScanResult(graph, snapshot.signalsJson.decodeSignals(snapshot.scannedAt))
+}
+
+private fun List<com.example.githubprofileexplorer.data.model.GitTreeEntry>.toScanStats(
+    manifests: List<String>
+): ArchitectureScanStats {
+    val files = filter { it.type == "blob" }
+    val directories = filter { it.type == "tree" }
+    val extensionCounts = files.groupingBy {
+        it.path.substringAfterLast('.', "")
+            .lowercase()
+            .takeIf(String::isNotBlank) ?: "[no extension]"
+    }.eachCount().toSortedMap()
+    val sourceExtensions = setOf(
+        "kt", "java", "kts", "gradle", "xml", "swift", "ts", "tsx", "js", "jsx",
+        "py", "go", "rs", "rb", "php", "cs", "cpp", "h", "hpp", "dart", "ex"
+    )
+    return ArchitectureScanStats(
+        totalFiles = files.size,
+        totalDirectories = directories.size,
+        totalBytes = files.sumOf { it.size ?: 0L },
+        sourceFiles = files.count { it.path.substringAfterLast('.', "").lowercase() in sourceExtensions },
+        extensionCounts = extensionCounts,
+        topLevelPaths = files.map { it.path.substringBefore('/') }.distinct().sorted().take(MAX_LAYOUT_ENTRIES),
+        manifestSizes = files.filter { it.path in manifests }.associate { it.path to (it.size ?: 0L) },
+        readmePath = files.firstOrNull { it.path.substringAfterLast('/').equals("README.md", true) }?.path,
+        licensePath = files.firstOrNull { it.path.substringAfterLast('/').lowercase().startsWith("license") }?.path,
+        largestFiles = files.sortedByDescending { it.size ?: 0L }
+            .take(MAX_LARGE_FILES)
+            .map { "${it.path} (${it.size ?: 0L} bytes)" }
+    )
 }
 
 private fun RepositorySignals.encode() = listOf(lastPush.orEmpty(), openIssues.toString(), archived.toString(), fork.toString(), license.orEmpty(), sourceUrl, scannedAt.toString(), commitPaths.joinToString(",")).joinToString("|")
@@ -163,3 +199,6 @@ private fun Exception.toArchitectureException(): ArchitectureException = when (t
     is IOException -> ArchitectureException(ArchitectureError.NETWORK)
     else -> ArchitectureException(ArchitectureError.UNKNOWN)
 }
+
+private const val MAX_LAYOUT_ENTRIES = 100
+private const val MAX_LARGE_FILES = 10

@@ -15,6 +15,13 @@ val localProperties = Properties().apply {
 val oauthClientId: String = localProperties.getProperty("githubOAuthClientId")
     ?: providers.gradleProperty("githubOAuthClientId").orNull
     ?: ""
+val geminiApiKey: String = (
+    localProperties.getProperty("geminiApiKey")
+        ?: localProperties.getProperty("GEMINI_API_KEY")
+        ?: providers.gradleProperty("geminiApiKey").orNull
+        ?: providers.gradleProperty("GEMINI_API_KEY").orNull
+        ?: ""
+    ).trim().removeSurrounding("\"").removeSurrounding("'").trim()
 fun String.toBuildConfigString(): String =
     "\"" + replace("\\", "\\\\").replace("\"", "\\\"").replace("\r", "\\r").replace("\n", "\\n") + "\""
 
@@ -33,6 +40,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "GITHUB_OAUTH_CLIENT_ID", oauthClientId.toBuildConfigString())
+        buildConfigField("String", "GEMINI_API_KEY", geminiApiKey.toBuildConfigString())
     }
 
     buildTypes {

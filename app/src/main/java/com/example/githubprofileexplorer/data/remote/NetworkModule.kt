@@ -47,12 +47,20 @@ class NetworkModule(context: Context, private val tokenStore: SecureTokenStore) 
     private val apiRetrofit = retrofit(API_BASE_URL, apiClient)
     private val downloadRetrofit = retrofit(API_BASE_URL, downloadClient)
     private val oauthRetrofit = retrofit(OAUTH_BASE_URL, apiClient)
+    private val geminiClient = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(15, TimeUnit.SECONDS)
+        .callTimeout(35, TimeUnit.SECONDS)
+        .build()
+    private val geminiRetrofit = retrofit(GEMINI_BASE_URL, geminiClient)
 
     val githubApi: GithubApi by lazy { apiRetrofit.create(GithubApi::class.java) }
     val repoApi: GithubRepoApi by lazy { apiRetrofit.create(GithubRepoApi::class.java) }
     val graphQlApi: GithubGraphQlApi by lazy { apiRetrofit.create(GithubGraphQlApi::class.java) }
     val downloadApi: GithubDownloadApi by lazy { downloadRetrofit.create(GithubDownloadApi::class.java) }
     val oauthApi: OAuthApi by lazy { oauthRetrofit.create(OAuthApi::class.java) }
+    val geminiApi: GeminiApi by lazy { geminiRetrofit.create(GeminiApi::class.java) }
 
     private fun retrofit(baseUrl: String, client: OkHttpClient): Retrofit =
         Retrofit.Builder()
@@ -65,6 +73,7 @@ class NetworkModule(context: Context, private val tokenStore: SecureTokenStore) 
         const val API_HOST = "api.github.com"
         const val API_BASE_URL = "https://api.github.com/"
         const val OAUTH_BASE_URL = "https://github.com/"
+        const val GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/"
         const val USER_AGENT = "GitHubProfileExplorer/1.0"
         const val CACHE_SIZE_BYTES = 10L * 1024 * 1024
     }

@@ -10,6 +10,7 @@ import com.example.githubprofileexplorer.ui.profile.ProfileViewModel
 import com.example.githubprofileexplorer.ui.local.LocalFeaturesViewModel
 import com.example.githubprofileexplorer.ui.portfolio.PortfolioViewModel
 import com.example.githubprofileexplorer.ui.architecture.ArchitectureViewModel
+import com.example.githubprofileexplorer.ui.gemini.GeminiViewModel
 
 class AppViewModelFactory(private val container: AppContainer) : ViewModelProvider.Factory {
 
@@ -45,7 +46,10 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
             PortfolioViewModel(container.portfolioRepository, container.portfolioPdfGenerator)
 
         modelClass.isAssignableFrom(ArchitectureViewModel::class.java) ->
-            ArchitectureViewModel(container.architectureRepository)
+            ArchitectureViewModel(container.architectureRepository, container.architectureAiRepository)
+
+        modelClass.isAssignableFrom(GeminiViewModel::class.java) ->
+            GeminiViewModel(container.geminiRepository)
 
         else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     } as T

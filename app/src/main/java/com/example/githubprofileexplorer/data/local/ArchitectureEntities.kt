@@ -19,6 +19,8 @@ data class ArchitectureSnapshotEntity(
     val detectedManifests: String = "",
     val parsedManifests: String = "",
     val unsupportedManifests: String = ""
+    ,
+    val scanStatsJson: String = "{}"
 )
 
 @Entity(primaryKeys = ["snapshotKey", "nodeId"], tableName = "architecture_nodes")

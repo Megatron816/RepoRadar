@@ -82,6 +82,8 @@ import com.example.githubprofileexplorer.ui.portfolio.PortfolioViewModel
 import com.example.githubprofileexplorer.ui.portfolio.PortfolioScreen
 import com.example.githubprofileexplorer.ui.architecture.ArchitectureScreen
 import com.example.githubprofileexplorer.ui.architecture.ArchitectureViewModel
+import com.example.githubprofileexplorer.ui.gemini.GeminiScreen
+import com.example.githubprofileexplorer.ui.gemini.GeminiViewModel
 import com.example.githubprofileexplorer.ui.profile.SearchState
 import com.example.githubprofileexplorer.data.export.PortfolioPdfShare
 import com.example.githubprofileexplorer.ui.portfolio.PortfolioExportState
@@ -109,6 +111,7 @@ fun AppRoot(
     val localVm: LocalFeaturesViewModel = viewModel(factory = viewModelFactory)
     val portfolioVm: PortfolioViewModel = viewModel(factory = viewModelFactory)
     val architectureVm: ArchitectureViewModel = viewModel(factory = viewModelFactory)
+    val geminiVm: GeminiViewModel = viewModel(factory = viewModelFactory)
 
     val profileState by profileVm.uiState.collectAsStateWithLifecycle()
     val authState by authVm.state.collectAsStateWithLifecycle()
@@ -122,6 +125,7 @@ fun AppRoot(
     val selectedProjects by portfolioVm.selectedProjects.collectAsStateWithLifecycle()
     val portfolioExportState = portfolioState.exportState
     val architectureState by architectureVm.state.collectAsStateWithLifecycle()
+    val geminiState by geminiVm.state.collectAsStateWithLifecycle()
     val remainingRequests by RateLimitMonitor.remaining.collectAsStateWithLifecycle()
 
     val navController = rememberNavController()
@@ -350,6 +354,17 @@ fun AppRoot(
                         onEcosystemChange = architectureVm::setEcosystem,
                         onOpenSnapshot = architectureVm::open,
                         onDeleteSnapshot = architectureVm::delete,
+                        onGenerateAiInsights = architectureVm::generateAiInsights,
+                        onAiPromptChange = architectureVm::onAiPromptChange,
+                        onAskAi = architectureVm::askAi,
+                        modifier = contentModifier
+                    )
+                }
+                composable(Destination.Gemini.route) {
+                    GeminiScreen(
+                        state = geminiState,
+                        onPromptChange = geminiVm::onPromptChange,
+                        onGenerate = geminiVm::generate,
                         modifier = contentModifier
                     )
                 }
