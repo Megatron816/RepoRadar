@@ -50,10 +50,15 @@ fun ProfileHistoryScreen(
                 Row(Modifier.padding(16.dp)) {
                     Column(Modifier.weight(1f)) {
                         Text(item.name ?: item.login, style = MaterialTheme.typography.titleMedium)
-                        Text("@${item.login}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            "@${item.login}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                         Text(
                             stringResource(R.string.profile_history_stats, item.followers, item.publicRepos),
-                            style = MaterialTheme.typography.bodySmall
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     IconButton(onClick = { onRefresh(item) }) {

@@ -50,7 +50,14 @@ fun ReadingQueueScreen(
             AppCard(Modifier.fillMaxWidth(), onClick = { onOpen(item) }) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("${item.owner}/${item.repoName}", style = MaterialTheme.typography.titleMedium)
-                    item.description?.takeIf { it.isNotBlank() }?.let { Text(it, maxLines = 2) }
+                    item.description?.takeIf { it.isNotBlank() }?.let {
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 2
+                        )
+                    }
                     WrappingRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         ReadingStatus.entries.forEach { status ->
                             FilterChip(

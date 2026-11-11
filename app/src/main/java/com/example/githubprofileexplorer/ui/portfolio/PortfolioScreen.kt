@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -35,6 +36,7 @@ import com.example.githubprofileexplorer.data.repository.Profile
 import com.example.githubprofileexplorer.domain.LanguageAnalytics
 import com.example.githubprofileexplorer.domain.PortfolioAnalytics
 import com.example.githubprofileexplorer.domain.PortfolioRepoSort
+import com.example.githubprofileexplorer.ui.components.AppCard
 import com.example.githubprofileexplorer.ui.components.CenteredContent
 import com.example.githubprofileexplorer.ui.components.EmptyState
 import com.example.githubprofileexplorer.ui.components.SectionCard
@@ -87,65 +89,67 @@ fun PortfolioScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                SectionCard(
-                    title = stringResource(R.string.portfolio_title),
-                    subtitle = stringResource(R.string.portfolio_subtitle)
-                ) {
-                    Text(
-                        stringResource(R.string.portfolio_profile_label),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text("@${profile.user.login}", style = MaterialTheme.typography.headlineSmall)
-                    profile.user.name?.takeIf(String::isNotBlank)?.let {
-                        Text(it, style = MaterialTheme.typography.titleMedium)
-                    }
-                    profile.user.bio?.takeIf(String::isNotBlank)?.let {
-                        Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        PortfolioStat(profile.repos.size.toString(), stringResource(R.string.portfolio_repositories_stat))
-                        PortfolioStat(selectedProjects.size.toString(), stringResource(R.string.portfolio_selected_stat))
-                    }
-                    Text(stringResource(R.string.portfolio_disclosure), style = MaterialTheme.typography.bodySmall)
-                    val fetchedAt = state.lastFetchedAt?.let {
-                        java.text.DateFormat.getDateTimeInstance().format(java.util.Date(it))
-                    } ?: stringResource(R.string.not_available)
-                    Text(
-                        stringResource(R.string.portfolio_fetched_at, fetchedAt),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(stringResource(R.string.portfolio_actions), style = MaterialTheme.typography.labelLarge)
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        Button(onClick = onToggleSaved, modifier = Modifier.fillMaxWidth()) {
-                            Text(stringResource(if (state.saved) R.string.remove_saved_profile else R.string.save_profile))
+                AppCard(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        val displayName = buildString {
+                            profile.user.name?.takeIf(String::isNotBlank)?.let {
+                                append(it)
+                                append("  ")
+                            }
+                            append("(@${profile.user.login})")
                         }
-                        OutlinedButton(
-                            onClick = onExport,
-                            enabled = state.exportState !is PortfolioExportState.Generating,
-                            modifier = Modifier.fillMaxWidth()
+                        Text(
+                            displayName,
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        profile.user.bio?.takeIf(String::isNotBlank)?.let {
+                            Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            Icon(Icons.Default.Share, contentDescription = stringResource(R.string.share_portfolio))
-                            if (state.exportState is PortfolioExportState.Generating) {
-                                CircularProgressIndicator(modifier = Modifier.padding(start = 8.dp).height(18.dp), strokeWidth = 2.dp)
-                            } else {
-                                Text(stringResource(R.string.share_portfolio), modifier = Modifier.padding(start = 4.dp))
+                            PortfolioStat(profile.repos.size.toString(), stringResource(R.string.portfolio_repositories_stat))
+                            PortfolioStat(selectedProjects.size.toString(), stringResource(R.string.portfolio_selected_stat))
+                        }
+                        Text(stringResource(R.string.portfolio_disclosure), style = MaterialTheme.typography.bodySmall)
+                        val fetchedAt = state.lastFetchedAt?.let {
+                            java.text.DateFormat.getDateTimeInstance().format(java.util.Date(it))
+                        } ?: stringResource(R.string.not_available)
+                        Text(
+                            stringResource(R.string.portfolio_fetched_at, fetchedAt),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(stringResource(R.string.portfolio_actions), style = MaterialTheme.typography.labelLarge)
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                            Button(onClick = onToggleSaved, modifier = Modifier.fillMaxWidth()) {
+                                Text(stringResource(if (state.saved) R.string.remove_saved_profile else R.string.save_profile))
+                            }
+                            OutlinedButton(
+                                onClick = onExport,
+                                enabled = state.exportState !is PortfolioExportState.Generating,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Default.Share, contentDescription = stringResource(R.string.share_portfolio))
+                                if (state.exportState is PortfolioExportState.Generating) {
+                                    CircularProgressIndicator(modifier = Modifier.padding(start = 8.dp).height(18.dp), strokeWidth = 2.dp)
+                                } else {
+                                    Text(stringResource(R.string.share_portfolio), modifier = Modifier.padding(start = 4.dp))
+                                }
                             }
                         }
-                    }
-                    when (state.exportState) {
-                        PortfolioExportState.Error -> Text(
-                            stringResource(R.string.portfolio_export_error),
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        else -> Unit
-                    }
-                    OutlinedButton(onClick = onRefresh, modifier = Modifier.fillMaxWidth()) {
-                        Text(stringResource(R.string.refresh_profile))
+                        when (state.exportState) {
+                            PortfolioExportState.Error -> Text(
+                                stringResource(R.string.portfolio_export_error),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            else -> Unit
+                        }
+                        OutlinedButton(onClick = onRefresh, modifier = Modifier.fillMaxWidth()) {
+                            Text(stringResource(R.string.refresh_profile))
+                        }
                     }
                 }
             }
@@ -217,7 +221,6 @@ fun PortfolioScreen(
                     if (state.filters.isActive) {
                         OutlinedButton(onClick = onClearFilters) { Text(stringResource(R.string.clear_filters)) }
                     }
-                    Text(stringResource(R.string.portfolio_matching_count, repos.size, profile.repos.size))
                 }
             }
             item {
@@ -247,56 +250,72 @@ fun PortfolioScreen(
                 }
             }
             item {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                SectionCard(
+                    title = stringResource(R.string.selected_projects),
+                    subtitle = stringResource(R.string.portfolio_matching_count, repos.size, profile.repos.size)
                 ) {
-                    Text(stringResource(R.string.selected_projects), style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        stringResource(R.string.selected_projects_count, selectedProjects.size),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            if (repos.isEmpty()) {
-                item {
-                    EmptyState(
-                        title = stringResource(R.string.no_matching_projects_title),
-                        body = stringResource(R.string.no_matching_projects_body),
-                        icon = Icons.Default.Assessment,
-                        modifier = Modifier.fillMaxWidth().height(220.dp)
-                    )
-                }
-            }
-            items(repos, key = { it.id.takeIf { id -> id > 0 } ?: it.htmlUrl }) { repo ->
-                val key = repo.id.takeIf { it > 0 }?.let { "github-repo:$it" }
-                    ?: "url:${repo.htmlUrl.trimEnd('/').lowercase()}"
-                val isSelected = key in selectedKeys
-                SectionCard(title = repo.name) {
-                    Text(repo.description ?: stringResource(R.string.no_description))
-                    WrappingRow(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
+                    if (repos.isEmpty()) {
                         Text(
-                            repo.language ?: stringResource(R.string.language_not_specified),
-                            style = MaterialTheme.typography.labelMedium
+                            stringResource(R.string.no_matching_projects_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.height(16.dp))
-                            Text(stringResource(R.string.repository_stars, repo.stargazersCount), style = MaterialTheme.typography.labelMedium)
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            repos.forEachIndexed { index, repo ->
+                                val key = repo.id.takeIf { it > 0 }?.let { "github-repo:$it" }
+                                    ?: "url:${repo.htmlUrl.trimEnd('/').lowercase()}"
+                                val isSelected = key in selectedKeys
+
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    if (index > 0) {
+                                        HorizontalDivider(
+                                            modifier = Modifier.padding(vertical = 4.dp),
+                                            color = MaterialTheme.colorScheme.outlineVariant
+                                        )
+                                    }
+                                    Text(
+                                        repo.name,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    repo.description?.takeIf(String::isNotBlank)?.let {
+                                        Text(
+                                            it,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                    WrappingRow(
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Text(
+                                            repo.language ?: stringResource(R.string.language_not_specified),
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                        ) {
+                                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.height(16.dp))
+                                            Text(
+                                                stringResource(R.string.repository_stars, repo.stargazersCount),
+                                                style = MaterialTheme.typography.labelMedium
+                                            )
+                                        }
+                                    }
+                                    FilterChip(
+                                        selected = isSelected,
+                                        onClick = { onToggleProject(repo) },
+                                        label = {
+                                            Text(stringResource(if (isSelected) R.string.deselect_project else R.string.select_project))
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = { onToggleProject(repo) },
-                        label = {
-                            Text(stringResource(if (isSelected) R.string.deselect_project else R.string.select_project))
-                        }
-                    )
                 }
             }
         }

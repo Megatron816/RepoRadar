@@ -36,9 +36,11 @@ import com.example.githubprofileexplorer.domain.ArchitectureGraph
 import com.example.githubprofileexplorer.domain.ArchitectureNodeType
 import com.example.githubprofileexplorer.domain.ArchitectureEcosystem
 import com.example.githubprofileexplorer.ui.components.AppIcons
+import com.example.githubprofileexplorer.ui.components.ArchitectureSkeleton
 import com.example.githubprofileexplorer.ui.components.CenteredContent
 import com.example.githubprofileexplorer.ui.components.EmptyState
 import com.example.githubprofileexplorer.ui.components.SectionCard
+import com.example.githubprofileexplorer.ui.components.sanitizeNormalText
 
 @Composable
 fun ArchitectureScreen(
@@ -56,11 +58,7 @@ fun ArchitectureScreen(
     CenteredContent(modifier) {
         when (val screen = state.state) {
             ArchitectureState.Idle -> EmptyState(stringResource(R.string.architecture_title), stringResource(R.string.architecture_idle), Icons.Default.AccountTree)
-            ArchitectureState.Loading -> Column(
-                Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) { CircularProgressIndicator() }
+            ArchitectureState.Loading -> ArchitectureSkeleton()
             is ArchitectureState.Error -> EmptyState(stringResource(R.string.architecture_error_title), architectureError(screen.error), Icons.Default.AccountTree)
             is ArchitectureState.Success -> {
                 LaunchedEffect(screen.result.graph.repository.key, screen.result.graph.commitSha) {
@@ -158,36 +156,67 @@ private fun ArchitectureGraphContent(
                 title = "${graph.repository.owner}/${graph.repository.name}",
                 subtitle = stringResource(R.string.architecture_revision, graph.repository.branch, graph.commitSha)
             ) {
-                if (graph.partial) Text(stringResource(R.string.architecture_partial), color = MaterialTheme.colorScheme.error)
-                Text(stringResource(R.string.architecture_static_note))
-                Text(stringResource(R.string.architecture_coverage, graph.parsedManifests.size, graph.detectedManifests.size))
+                if (graph.partial) {
+                    Text(
+                        stringResource(R.string.architecture_partial),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                Text(
+                    stringResource(R.string.architecture_static_note),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    stringResource(R.string.architecture_coverage, graph.parsedManifests.size, graph.detectedManifests.size),
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 graph.unsupportedManifests.takeIf { it.isNotEmpty() }?.let {
-                    Text(stringResource(R.string.architecture_unsupported_manifests, it.joinToString()), color = MaterialTheme.colorScheme.error)
+                    Text(
+                        stringResource(R.string.architecture_unsupported_manifests, it.joinToString()),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text(stringResource(R.string.architecture_modules, graph.moduleCount))
-                    Text(stringResource(R.string.architecture_dependencies, graph.dependencyCount))
+                    Text(
+                        stringResource(R.string.architecture_modules, graph.moduleCount),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        stringResource(R.string.architecture_dependencies, graph.dependencyCount),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
                 Text(
                     "Repository contents: ${graph.scanStats.totalFiles} files, " +
                         "${graph.scanStats.totalDirectories} directories, " +
-                        "${graph.scanStats.sourceFiles} source files"
+                        "${graph.scanStats.sourceFiles} source files",
+                    style = MaterialTheme.typography.bodyMedium
                 )
-                Text("Top-level layout: ${graph.scanStats.topLevelPaths.joinToString()}")
+                Text(
+                    "Top-level layout: ${graph.scanStats.topLevelPaths.joinToString()}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 Text(
                     "Detected README: ${graph.scanStats.readmePath ?: "not found"} · " +
-                        "License: ${graph.scanStats.licensePath ?: "not found"}"
+                        "License: ${graph.scanStats.licensePath ?: "not found"}",
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 if (graph.scanStats.extensionCounts.isNotEmpty()) {
                     Text(
                         "File types: " + graph.scanStats.extensionCounts.entries
                             .sortedByDescending { it.value }
                             .take(10)
-                            .joinToString { "${it.key}=${it.value}" }
+                            .joinToString { "${it.key}=${it.value}" },
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
                 if (graph.scanStats.largestFiles.isNotEmpty()) {
-                    Text("Largest scanned files: ${graph.scanStats.largestFiles.joinToString()}")
+                    Text(
+                        "Largest scanned files: ${graph.scanStats.largestFiles.joinToString()}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
 
@@ -299,17 +328,20 @@ private fun AiResponseBullets(response: String) {
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
-                            category.title,
+                            sanitizeNormalText(category.title),
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
                         category.findings.forEach { finding ->
-                            Text(
-                                finding,
-                                modifier = Modifier.fillMaxWidth(),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            val cleaned = sanitizeNormalText(finding)
+                            if (cleaned.isNotBlank()) {
+                                Text(
+                                    cleaned,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
                 }
@@ -330,9 +362,8 @@ private fun parseAiResponse(response: String): List<AiResponseCategory> {
     var current = "Other findings"
 
     response.lines().forEach { rawLine ->
-        val line = rawLine.trim()
+        val line = sanitizeNormalText(rawLine)
             .replace(Regex("""^(?:[-*•]|\d+[.)])\s+"""), "")
-            .replace(Regex("""[`*_#]"""), "")
             .trim()
         if (line.isBlank()) return@forEach
 

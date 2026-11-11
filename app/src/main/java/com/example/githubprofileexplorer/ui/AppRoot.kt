@@ -445,6 +445,9 @@ fun AppRoot(
                     onLeftChange = compareVm::onLeftChange,
                     onRightChange = compareVm::onRightChange,
                     onCompare = compareVm::compare,
+                    onGenerateAiComparison = compareVm::generateAiComparison,
+                    onAiPromptChange = compareVm::onAiPromptChange,
+                    onAskAi = compareVm::askAi,
                     modifier = contentModifier
                 ) }
 

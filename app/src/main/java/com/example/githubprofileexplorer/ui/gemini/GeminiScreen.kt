@@ -21,6 +21,7 @@ import com.example.githubprofileexplorer.data.repository.GeminiError
 import com.example.githubprofileexplorer.ui.components.CenteredContent
 import com.example.githubprofileexplorer.ui.components.ErrorState
 import com.example.githubprofileexplorer.ui.components.SectionCard
+import com.example.githubprofileexplorer.ui.components.sanitizeNormalText
 
 @Composable
 fun GeminiScreen(
@@ -71,7 +72,10 @@ fun GeminiScreen(
 
             state.response?.let { response ->
                 SectionCard(title = stringResource(R.string.gemini_response_title)) {
-                    Text(response, style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = sanitizeNormalText(response),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         }

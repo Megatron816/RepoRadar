@@ -2,6 +2,7 @@ package com.example.githubprofileexplorer.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -68,15 +69,16 @@ fun HomeScreen(
                     .padding(top = 28.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
                         stringResource(R.string.home_recent_profiles),
                         style = MaterialTheme.typography.titleMedium
                     )
-                    TextButton(
-                        onClick = onSeeAllRecentProfiles,
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
+                    TextButton(onClick = onSeeAllRecentProfiles) {
                         Text(stringResource(R.string.see_all))
                     }
                 }

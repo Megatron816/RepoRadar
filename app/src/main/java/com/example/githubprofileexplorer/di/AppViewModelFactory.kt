@@ -33,6 +33,7 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
             CompareViewModel(
                 container.profileRepository,
                 container.contributionService,
+                container.geminiRepository,
                 isSignedIn = { container.tokenStore.isLoggedIn() }
             )
 

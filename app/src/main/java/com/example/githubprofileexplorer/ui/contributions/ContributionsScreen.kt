@@ -35,6 +35,7 @@ import com.example.githubprofileexplorer.data.repository.Profile
 import com.example.githubprofileexplorer.data.repository.ProfileError
 import com.example.githubprofileexplorer.domain.ContributionSummary
 import com.example.githubprofileexplorer.ui.components.CenteredContent
+import com.example.githubprofileexplorer.ui.components.ContributionsSkeleton
 import com.example.githubprofileexplorer.ui.components.EmptyState
 import com.example.githubprofileexplorer.ui.components.ErrorState
 import com.example.githubprofileexplorer.ui.components.LoadingState
@@ -74,7 +75,7 @@ fun ContributionsScreen(
 
             state is ContributionsState.Ready -> ContributionsContent(profile.user.login, state.calendar, state.summary)
 
-            else -> LoadingState()
+            else -> ContributionsSkeleton()
         }
     }
 }

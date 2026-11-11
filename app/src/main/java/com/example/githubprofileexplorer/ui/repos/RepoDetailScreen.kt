@@ -39,6 +39,7 @@ import com.example.githubprofileexplorer.ui.components.CenteredContent
 import com.example.githubprofileexplorer.ui.components.HealthBadge
 import com.example.githubprofileexplorer.ui.components.LanguageLabel
 import com.example.githubprofileexplorer.ui.components.MarkdownText
+import com.example.githubprofileexplorer.ui.components.ReadmeSkeleton
 import com.example.githubprofileexplorer.ui.components.SectionCard
 import com.example.githubprofileexplorer.ui.components.StatTile
 import com.example.githubprofileexplorer.ui.components.TagChip
@@ -145,7 +146,7 @@ fun RepoDetailScreen(
 
             SectionCard(title = stringResource(R.string.readme_title)) {
                 when (readme) {
-                    ReadmeState.Idle, ReadmeState.Loading -> CircularProgressIndicator()
+                    ReadmeState.Idle, ReadmeState.Loading -> ReadmeSkeleton()
                     ReadmeState.Unavailable -> Text(
                         stringResource(R.string.readme_unavailable),
                         color = MaterialTheme.colorScheme.onSurfaceVariant

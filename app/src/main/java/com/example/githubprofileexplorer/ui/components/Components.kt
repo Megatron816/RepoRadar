@@ -1,5 +1,11 @@
 package com.example.githubprofileexplorer.ui.components
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -13,8 +19,10 @@ import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +42,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -189,8 +198,153 @@ fun EmptyState(
 }
 
 @Composable
+fun SkeletonBox(modifier: Modifier = Modifier, shape: RoundedCornerShape = RoundedCornerShape(8.dp)) {
+    val transition = rememberInfiniteTransition(label = "skeleton_blink")
+    val alpha by transition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.85f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "skeleton_alpha"
+    )
+    val color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = alpha)
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(color)
+    )
+}
+
+@Composable
+fun RepoCardSkeleton(modifier: Modifier = Modifier) {
+    AppCard(modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                SkeletonBox(Modifier.size(36.dp), CircleShape)
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    SkeletonBox(Modifier.fillMaxWidth(0.6f).height(16.dp))
+                    SkeletonBox(Modifier.fillMaxWidth(0.4f).height(12.dp))
+                }
+            }
+            SkeletonBox(Modifier.fillMaxWidth(0.9f).height(14.dp))
+            SkeletonBox(Modifier.fillMaxWidth(0.5f).height(14.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                SkeletonBox(Modifier.width(60.dp).height(14.dp))
+                SkeletonBox(Modifier.width(50.dp).height(14.dp))
+                SkeletonBox(Modifier.width(50.dp).height(14.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileSkeleton(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        AppCard(Modifier.fillMaxWidth()) {
+            Column(
+                Modifier.padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                SkeletonBox(Modifier.size(80.dp), CircleShape)
+                SkeletonBox(Modifier.width(160.dp).height(20.dp))
+                SkeletonBox(Modifier.width(100.dp).height(14.dp))
+                SkeletonBox(Modifier.fillMaxWidth(0.8f).height(14.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        SkeletonBox(Modifier.width(40.dp).height(18.dp))
+                        SkeletonBox(Modifier.width(50.dp).height(12.dp))
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        SkeletonBox(Modifier.width(40.dp).height(18.dp))
+                        SkeletonBox(Modifier.width(50.dp).height(12.dp))
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        SkeletonBox(Modifier.width(40.dp).height(18.dp))
+                        SkeletonBox(Modifier.width(50.dp).height(12.dp))
+                    }
+                }
+            }
+        }
+        RepoCardSkeleton()
+        RepoCardSkeleton()
+    }
+}
+
+@Composable
+fun ReadmeSkeleton(modifier: Modifier = Modifier) {
+    AppCard(modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            SkeletonBox(Modifier.fillMaxWidth(0.7f).height(20.dp))
+            SkeletonBox(Modifier.fillMaxWidth().height(14.dp))
+            SkeletonBox(Modifier.fillMaxWidth(0.9f).height(14.dp))
+            SkeletonBox(Modifier.fillMaxWidth(0.8f).height(14.dp))
+            SkeletonBox(Modifier.fillMaxWidth(0.6f).height(14.dp))
+            SkeletonBox(Modifier.fillMaxWidth(0.95f).height(14.dp))
+        }
+    }
+}
+
+@Composable
+fun ArchitectureSkeleton(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        AppCard(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                SkeletonBox(Modifier.width(180.dp).height(18.dp))
+                SkeletonBox(Modifier.fillMaxWidth(0.8f).height(14.dp))
+                SkeletonBox(Modifier.fillMaxWidth(0.5f).height(36.dp), RoundedCornerShape(18.dp))
+            }
+        }
+        AppCard(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                SkeletonBox(Modifier.width(140.dp).height(18.dp))
+                SkeletonBox(Modifier.fillMaxWidth().height(14.dp))
+                SkeletonBox(Modifier.fillMaxWidth(0.85f).height(14.dp))
+                SkeletonBox(Modifier.fillMaxWidth(0.7f).height(14.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun ContributionsSkeleton(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        AppCard(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                SkeletonBox(Modifier.width(160.dp).height(18.dp))
+                SkeletonBox(Modifier.fillMaxWidth(0.7f).height(14.dp))
+                Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    repeat(4) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            SkeletonBox(Modifier.width(36.dp).height(18.dp))
+                            SkeletonBox(Modifier.width(44.dp).height(12.dp))
+                        }
+                    }
+                }
+            }
+        }
+        AppCard(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                SkeletonBox(Modifier.width(120.dp).height(18.dp))
+                SkeletonBox(Modifier.fillMaxWidth().height(140.dp))
+            }
+        }
+    }
+}
+
+@Composable
 fun LoadingState(modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+    ProfileSkeleton(modifier)
 }
 
 @Composable
