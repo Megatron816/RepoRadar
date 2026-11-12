@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,PluralsCandidate">
-    <string name="app_name">GitHub Profile Explorer</string>
-    <string name="app_logo_description">GitHub Profile Explorer logo</string>
+    <string name="app_name">Repo Radar</string>
+    <string name="app_logo_description">Repo Radar logo</string>
     <string name="drawer_tagline">Explore developers and their code</string>
     <string name="nav_home">Home</string>
-    <string name="home_title">Welcome to GitHub Profile Explorer</string>
+    <string name="home_title">Welcome to Repo Radar</string>
     <string name="home_body">Search GitHub profiles, compare developers, and explore repositories in one place.</string>
     <string name="home_search">Search a profile</string>
     <string name="home_portfolio">Create a candidate portfolio</string>
@@ -15,7 +15,7 @@
     <string name="nav_profile">Profile</string>
     <string name="nav_portfolio">Candidate portfolio</string>
     <string name="nav_architecture">Architecture explorer</string>
-    <string name="nav_gemini">Gemini AI</string>
+    <string name="nav_gemini">AI</string>
     <string name="nav_repositories">Repositories</string>
     <string name="nav_languages">Languages</string>
     <string name="nav_contributions">Contributions</string>
@@ -146,12 +146,12 @@
     <string name="compare_average_health">Average health</string>
     <string name="compare_contributions">Contributions</string>
     <string name="compare_disclaimer">Comparison highlights metrics only; it is not a verdict on skill.</string>
-    <string name="compare_ai_title">Gemini AI Comparison &amp; Insights</string>
+    <string name="compare_ai_title">AI Comparison &amp; Insights</string>
     <string name="compare_ai_subtitle">Generate an AI-powered comparison, analysis, and insights between both developers.</string>
     <string name="compare_ai_generate">Generate AI Comparison</string>
     <string name="compare_ai_prompt_label">Ask about this comparison</string>
     <string name="compare_ai_prompt_hint">e.g., Which developer has better open source impact?</string>
-    <string name="compare_ai_button">Ask Gemini</string>
+    <string name="compare_ai_button">Ask AI</string>
     <string name="compare_ai_response">AI comparison response</string>
     <string name="download_zip">Download ZIP</string>
     <string name="downloading">Downloading…</string>
@@ -168,7 +168,7 @@
     <string name="delete_download_title">Delete download?</string>
     <string name="delete_download_body">Remove %1$s from your history and delete its ZIP file from the Downloads folder?</string>
     <string name="download_received">%1$s received</string>
-    <string name="download_saved_to">Saved in Downloads/GitHubProfileExplorer</string>
+    <string name="download_saved_to">Saved in Downloads/RepoRadar</string>
     <string name="download_error_network">The connection was lost. Retry to download again.</string>
     <string name="download_error_not_found">GitHub could not find this repository or branch.</string>
     <string name="download_error_rate_limited">GitHub\'s request limit was reached. Try again later.</string>

@@ -45,13 +45,10 @@ fun HomeScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium)
-        Text(
-            stringResource(R.string.home_body),
-            modifier = Modifier.padding(top = 12.dp, bottom = 28.dp),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Button(onClick = onSearch) {
+        Button(
+            onClick = onSearch,
+            modifier = Modifier.padding(top = 28.dp)
+        ) {
             Icon(Icons.Default.Search, contentDescription = null)
             Text(stringResource(R.string.home_search), modifier = Modifier.padding(start = 8.dp))
         }

@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GitHub Profile Explorer"
+rootProject.name = "Repo Radar"
 include(":app")

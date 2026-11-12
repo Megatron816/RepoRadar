@@ -243,7 +243,7 @@ class DownloadRepository(
     }
 
     companion object {
-        private const val FOLDER_NAME = "GitHubProfileExplorer"
+        private const val FOLDER_NAME = "RepoRadar"
         private const val BUFFER_SIZE = 16 * 1024
         private const val REPORT_STEP_BYTES = 128L * 1024
 

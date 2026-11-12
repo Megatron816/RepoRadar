@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">GitHub प्रोफ़ाइल एक्सप्लोरर</string>
+    <string name="app_name">रेपो रडार</string>
     <string name="home_recent_profiles">हाल ही में देखी गई प्रोफ़ाइल</string>
-    <string name="app_logo_description">GitHub प्रोफ़ाइल एक्सप्लोरर लोगो</string>
+    <string name="app_logo_description">रेपो रडार लोगो</string>
     <string name="drawer_tagline">डेवलपर्स और उनके कोड को एक्सप्लोर करें</string>
     <string name="developed_by">Arpit द्वारा विकसित</string>
     <string name="developer_email">arpitsinha795@gmail.com</string>
@@ -146,7 +146,7 @@
     <string name="delete_download_title">डाउनलोड हटाएँ?</string>
     <string name="delete_download_body">%1$s को इतिहास से हटाएँ और उसकी ZIP फ़ाइल डाउनलोड फ़ोल्डर से भी हटाएँ?</string>
     <string name="download_received">%1$s प्राप्त हुआ</string>
-    <string name="download_saved_to">Downloads/GitHubProfileExplorer में सहेजा गया</string>
+    <string name="download_saved_to">Downloads/RepoRadar में सहेजा गया</string>
     <string name="download_error_network">कनेक्शन टूट गया। दोबारा डाउनलोड करने के लिए फिर कोशिश करें।</string>
     <string name="download_error_not_found">GitHub को यह रिपॉज़िटरी या ब्रांच नहीं मिली।</string>
     <string name="download_error_rate_limited">GitHub की अनुरोध सीमा पूरी हो गई। बाद में फिर कोशिश करें।</string>

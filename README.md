@@ -1,4 +1,4 @@
-# GitHub Profile Explorer
+# Repo Radar
 
 An Android app (Kotlin, Jetpack Compose, Material 3) for exploring GitHub developers: profile, repositories,
 language mix, contribution heatmap, side-by-side comparison, and ZIP downloads with a persistent history.

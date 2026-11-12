@@ -71,7 +71,7 @@ class PortfolioPdfGenerator(private val context: Context) {
 
         fun render() {
             startPage()
-            text("GitHub Profile Explorer", heading, 24f)
+            text("Repo Radar", heading, 24f)
             text("Candidate portfolio", heading, 48f)
             avatar?.let {
                 val size = 72
