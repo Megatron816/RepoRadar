@@ -15,9 +15,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -25,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -106,13 +109,14 @@ fun RepoDetailScreen(
             }
 
             Button(onClick = onDownload, enabled = !downloading, modifier = Modifier.fillMaxWidth()) {
-                if (downloading) {
-                    CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
-                    Text(stringResource(R.string.downloading), Modifier.padding(start = 8.dp))
-                } else {
-                    Icon(AppIcons.Download, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Text(stringResource(R.string.download_zip), Modifier.padding(start = 8.dp))
-                }
+                Text(if (downloading) stringResource(R.string.downloading) else stringResource(R.string.download_zip))
+            }
+            if (downloading) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(1.5.dp)),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                )
             }
             OutlinedButton(onClick = onSaveToggle, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(if (saved) R.string.remove_from_queue else R.string.save_to_queue))

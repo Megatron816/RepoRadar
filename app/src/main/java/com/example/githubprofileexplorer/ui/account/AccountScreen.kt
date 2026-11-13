@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -20,6 +22,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -32,6 +35,7 @@ import com.example.githubprofileexplorer.R
 import com.example.githubprofileexplorer.data.auth.AuthFailure
 import com.example.githubprofileexplorer.ui.components.CenteredContent
 import com.example.githubprofileexplorer.ui.components.SectionCard
+import com.example.githubprofileexplorer.ui.components.SkeletonBox
 
 @Composable
 fun AccountScreen(
@@ -59,7 +63,10 @@ fun AccountScreen(
                 }
 
                 AuthState.Starting -> SectionCard(title = stringResource(R.string.account_starting)) {
-                    CircularProgressIndicator()
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        SkeletonBox(Modifier.fillMaxWidth(0.6f).height(16.dp))
+                        SkeletonBox(Modifier.fillMaxWidth().height(36.dp), RoundedCornerShape(8.dp))
+                    }
                 }
 
                 is AuthState.AwaitingVerification -> VerificationCard(state, onCancel)
@@ -132,15 +139,21 @@ private fun VerificationCard(state: AuthState.AwaitingVerification, onCancel: ()
                 modifier = Modifier.fillMaxWidth()
             ) { Text(stringResource(R.string.open_github)) }
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-            Text(
-                stringResource(R.string.account_waiting),
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(1.5.dp)),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
             )
-            TextButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    stringResource(R.string.account_waiting),
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                TextButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
+            }
         }
     }
 }

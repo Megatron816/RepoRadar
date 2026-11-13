@@ -59,4 +59,17 @@ class PortfolioPdfDataTest {
             PortfolioPdfDataMapper.sanitizeFilename("a/../b").replace(Regex("\\d{4}-\\d{2}-\\d{2}"), "2026-11-05")
         )
     }
+
+    @Test
+    fun mapIncludesAiPortfolioWriting() {
+        val user = GithubUser("octocat", "Octo", null, 1, 2, 1, null, id = 99L)
+        val profile = Profile(user, emptyList())
+        val data = PortfolioPdfDataMapper.map(
+            profile = profile,
+            selectedProjects = emptyList(),
+            fetchedAt = 1_000L,
+            aiPortfolioWriting = "A seasoned software engineer..."
+        )
+        assertEquals("A seasoned software engineer...", data.aiPortfolioWriting)
+    }
 }

@@ -34,7 +34,6 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -337,6 +336,31 @@ fun ContributionsSkeleton(modifier: Modifier = Modifier) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SkeletonBox(Modifier.width(120.dp).height(18.dp))
                 SkeletonBox(Modifier.fillMaxWidth().height(140.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun CompareSkeleton(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            SkeletonBox(Modifier.weight(1f).height(40.dp), RoundedCornerShape(12.dp))
+            SkeletonBox(Modifier.weight(1f).height(40.dp), RoundedCornerShape(12.dp))
+        }
+        AppCard(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                repeat(6) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        SkeletonBox(Modifier.width(80.dp).height(14.dp))
+                        SkeletonBox(Modifier.width(40.dp).height(14.dp))
+                        SkeletonBox(Modifier.width(40.dp).height(14.dp))
+                    }
+                }
             }
         }
     }

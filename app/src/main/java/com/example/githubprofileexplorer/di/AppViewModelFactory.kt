@@ -44,7 +44,7 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
             LocalFeaturesViewModel(container.localFeatureRepository)
 
         modelClass.isAssignableFrom(PortfolioViewModel::class.java) ->
-            PortfolioViewModel(container.portfolioRepository, container.portfolioPdfGenerator)
+            PortfolioViewModel(container.portfolioRepository, container.portfolioPdfGenerator, container.geminiRepository)
 
         modelClass.isAssignableFrom(ArchitectureViewModel::class.java) ->
             ArchitectureViewModel(container.architectureRepository, container.architectureAiRepository)

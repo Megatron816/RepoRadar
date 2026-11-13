@@ -11,13 +11,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -26,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -102,9 +105,15 @@ private fun ArchitectureGraphContent(
                 title = "AI Architecture Insights",
                 subtitle = "Generate a summary or ask questions about this repository."
             ) {
-                Button(onClick = onGenerateAiInsights, enabled = !state.ai.isLoading) {
-                    if (state.ai.isLoading) CircularProgressIndicator()
-                    else Text("Generate AI Insights")
+                Button(onClick = onGenerateAiInsights, enabled = !state.ai.isLoading, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (state.ai.isLoading) "Generating AI Insights..." else "Generate AI Insights")
+                }
+                if (state.ai.isLoading) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(1.5.dp)),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                    )
                 }
                 OutlinedTextField(
                     value = state.ai.prompt,

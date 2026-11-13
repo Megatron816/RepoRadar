@@ -9,6 +9,7 @@ import com.example.githubprofileexplorer.data.local.portfolioRepositoryKey
 import com.example.githubprofileexplorer.data.model.GitHubRepo
 import com.example.githubprofileexplorer.data.model.GithubUser
 import com.example.githubprofileexplorer.data.repository.PortfolioStore
+import com.example.githubprofileexplorer.data.repository.GeminiRepository
 import com.example.githubprofileexplorer.domain.PortfolioRepoSort
 import com.example.githubprofileexplorer.domain.PortfolioPdfDataMapper
 import com.example.githubprofileexplorer.domain.RepositoryFilters
@@ -46,7 +47,8 @@ sealed interface PortfolioExportState {
 
 class PortfolioViewModel(
     private val portfolios: PortfolioStore,
-    private val pdfGenerator: PortfolioPdfGenerator
+    private val pdfGenerator: PortfolioPdfGenerator,
+    private val geminiRepository: GeminiRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(PortfolioUiState())
     val state: StateFlow<PortfolioUiState> = _state.asStateFlow()
@@ -165,7 +167,27 @@ class PortfolioViewModel(
         _state.update { it.copy(exportState = PortfolioExportState.Generating) }
         viewModelScope.launch {
             runCatching {
-                val data = PortfolioPdfDataMapper.map(profile, projects, _state.value.lastFetchedAt)
+                val prompt = buildString {
+                    append("Write a professional software engineering candidate portfolio executive summary for GitHub user @${profile.user.login}")
+                    profile.user.name?.let { append(" ($it)") }
+                    profile.user.bio?.let { append(", bio: $it") }
+                    profile.user.company?.let { append(", company: $it") }
+                    profile.user.location?.let { append(", location: $it") }
+                    append(". Selected repositories (${projects.size}): ")
+                    append(projects.joinToString("; ") { p ->
+                        "${p.name} (${p.language ?: "unknown"}): ${p.description ?: "no description"}"
+                    })
+                    append(". Provide a polished, professional 2-3 paragraph summary highlighting technical strengths, architectural expertise, project impact, and suitability for software engineering roles.")
+                }
+                val aiWritingResult = geminiRepository.generate(prompt)
+                val aiPortfolioWriting = aiWritingResult.getOrNull()
+
+                val data = PortfolioPdfDataMapper.map(
+                    profile = profile,
+                    selectedProjects = projects,
+                    fetchedAt = _state.value.lastFetchedAt,
+                    aiPortfolioWriting = aiPortfolioWriting
+                )
                 pdfGenerator.generate(data)
             }.onSuccess { file ->
                 _state.update { it.copy(exportState = PortfolioExportState.Ready(file)) }

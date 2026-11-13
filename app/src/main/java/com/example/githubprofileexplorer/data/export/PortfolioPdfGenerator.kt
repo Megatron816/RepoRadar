@@ -43,7 +43,6 @@ class PortfolioPdfGenerator(private val context: Context) {
         } finally {
             connection.disconnect()
         }
-
     }
 
     private companion object {
@@ -61,80 +60,179 @@ class PortfolioPdfGenerator(private val context: Context) {
         private val right = 553f
         private val body = Paint(Paint.ANTI_ALIAS_FLAG).apply { textSize = 10f; color = 0xff202124.toInt() }
         private val small = Paint(Paint.ANTI_ALIAS_FLAG).apply { textSize = 8f; color = 0xff5f6368.toInt() }
-        private val heading = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            textSize = 18f; color = 0xff1a237e.toInt(); typeface = Typeface.DEFAULT_BOLD
+        private val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            textSize = 22f; color = 0xff1a237e.toInt(); typeface = Typeface.DEFAULT_BOLD
+        }
+        private val subtitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            textSize = 12f; color = 0xff1a237e.toInt(); typeface = Typeface.DEFAULT_BOLD
+        }
+        private val namePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            textSize = 11f; color = 0xff1a237e.toInt(); typeface = Typeface.DEFAULT_BOLD
+        }
+        private val usernamePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            textSize = 9f; color = 0xff5f6368.toInt()
         }
         private var page: PdfDocument.Page? = null
         private var canvas: Canvas? = null
-        private var y = 44f
+        private var y = 40f
         private var pageNumber = 0
 
         fun render() {
             startPage()
-            text("Repo Radar", heading, 24f)
-            text("Candidate portfolio", heading, 48f)
+
+            // 1. Write the candidate portfolio in the top as headline
+            canvas?.drawText("CANDIDATE PORTFOLIO", left, y, titlePaint)
+            y += 28f
+
+            // Top right: Profile picture (avatar), and name of user below their profile picture
+            val avatarSize = 64f
+            val avatarLeft = right - avatarSize
+            val avatarTop = y
+            val avatarBottom = avatarTop + avatarSize
+
             avatar?.let {
-                val size = 72
-                canvas?.drawBitmap(it, null, android.graphics.RectF(right - size, 22f, right, 22f + size), body)
+                canvas?.drawBitmap(it, null, android.graphics.RectF(avatarLeft, avatarTop, right, avatarBottom), body)
             } ?: run {
                 body.style = Paint.Style.STROKE
-                canvas?.drawCircle(right - 36f, 58f, 28f, body)
+                canvas?.drawCircle(avatarLeft + avatarSize / 2f, avatarTop + avatarSize / 2f, avatarSize / 2f, body)
                 body.style = Paint.Style.FILL
             }
-            text("@${data.profile.username}", heading, 88f)
-            data.profile.displayName?.let { text(it, body) }
-            line("GitHub ID", data.profile.githubId?.toString() ?: "Not provided")
-            link("Profile", data.profile.profileUrl)
-            line("Bio", data.profile.bio ?: "Not provided")
-            line("Company", data.profile.company ?: "Not provided")
-            line("Location", data.profile.location ?: "Not provided")
-            line("Blog", data.profile.blog ?: "Not provided")
-            line("Account created", PortfolioPdfDataMapper.formatTimestamp(data.profile.createdAt))
-            line("Exported", PortfolioPdfDataMapper.formatLocalTimestamp(data.generatedAt))
-            line("Source data fetched", PortfolioPdfDataMapper.formatLocalTimestamp(data.fetchedAt))
+
+            // Name of user below their profile picture
+            val nameText = data.profile.displayName ?: data.profile.username
+            val usernameText = "@${data.profile.username}"
+            canvas?.drawText(nameText, avatarLeft, avatarBottom + 14f, namePaint)
+            canvas?.drawText(usernameText, avatarLeft, avatarBottom + 26f, usernamePaint)
+
+            // Left side profile details
+            val startProfileY = y
+            y = avatarTop
+            val profileMaxWidth = (right - left) - avatarSize - 20f
+
+            fun profileLine(label: String, value: String) {
+                val lineText = "$label: $value"
+                wrap(lineText, body, profileMaxWidth).forEach { wrapped ->
+                    canvas?.drawText(wrapped, left, y, body)
+                    y += body.textSize + 3f
+                }
+            }
+
+            profileLine("GitHub ID", data.profile.githubId?.toString() ?: "Not provided")
+            profileLine("Profile", data.profile.profileUrl)
+            profileLine("Bio", data.profile.bio ?: "Not provided")
+            profileLine("Company", data.profile.company ?: "Not provided")
+            profileLine("Location", data.profile.location ?: "Not provided")
+            profileLine("Blog", data.profile.blog ?: "Not provided")
+            profileLine("Created", PortfolioPdfDataMapper.formatTimestamp(data.profile.createdAt))
+            profileLine("Exported", PortfolioPdfDataMapper.formatLocalTimestamp(data.generatedAt))
+            profileLine("Fetched", PortfolioPdfDataMapper.formatLocalTimestamp(data.fetchedAt))
+
+            y = maxOf(y, avatarBottom + 36f)
+            y += 12f
+
             if (data.isStale) {
                 text("STALE DATA: source data is older than 15 minutes or its fetch time is unavailable.", small)
+                y += 6f
             }
-            text("Based on publicly available GitHub data.", body)
-            text("Informational document only; not a skill assessment or hiring recommendation.", small)
-            text("Repository selections: ${data.repositories.size}", body)
+
+            // 4. Add more details in portfolio PDF, use Gemini API for portfolio writing (AI Portfolio Summary)
+            data.aiPortfolioWriting?.takeIf { it.isNotBlank() }?.let { aiWriting ->
+                renderContainerBox("Professional Portfolio Summary (Gemini AI)", aiWriting)
+            }
+
+            y += 8f
+            canvas?.drawText("Selected Repositories (${data.repositories.size})", left, y, subtitlePaint)
+            y += 16f
+
             if (data.repositories.isEmpty()) {
                 text("No repositories selected. Select projects in Candidate portfolio before exporting.", body)
             } else {
+                // 3. If there are more than one repo in the portfolio, contain each portfolio in a container
                 data.repositories.forEachIndexed { index, repo -> renderRepository(index + 1, repo) }
             }
+
             finishPage()
         }
 
+        private fun renderContainerBox(title: String, content: String) {
+            val lines = mutableListOf<Pair<String, Paint>>()
+            lines.add(title to subtitlePaint)
+            wrap(content, body, right - left - 16f).forEach { wrapped ->
+                lines.add(wrapped to body)
+            }
+
+            val padding = 8f
+            var totalHeight = padding * 2
+            for ((_, paint) in lines) {
+                totalHeight += paint.textSize + 4f
+            }
+
+            ensureSpace(totalHeight + 16f)
+
+            val boxTop = y
+            val boxBottom = y + totalHeight
+
+            val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL; color = 0xfff0f4f8.toInt() }
+            val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; color = 0xff90caf9.toInt(); strokeWidth = 1f }
+            canvas?.drawRoundRect(left, boxTop, right, boxBottom, 6f, 6f, fillPaint)
+            canvas?.drawRoundRect(left, boxTop, right, boxBottom, 6f, 6f, strokePaint)
+
+            y += padding
+            for ((lineText, paint) in lines) {
+                canvas?.drawText(lineText, left + padding, y + paint.textSize, paint)
+                y += paint.textSize + 4f
+            }
+            y += padding + 12f
+        }
+
         private fun renderRepository(number: Int, repo: com.example.githubprofileexplorer.domain.PortfolioPdfRepository) {
-            ensureSpace(150f)
-            text("$number. ${repo.name}", heading, 18f)
-            line("Full name", repo.fullName)
-            line("GitHub ID", repo.githubId?.toString() ?: "Not provided")
-            link("Repository", repo.url)
-            line("Description", repo.description ?: "No description provided")
-            line("Primary language", repo.language ?: "Not specified")
-            line("Topics", repo.topics.takeIf { it.isNotEmpty() }?.joinToString(", ") ?: "Not provided")
-            line("Stars", repo.stars?.toString() ?: "Not available")
-            line("Forks", repo.forks?.toString() ?: "Not available")
-            line("Open issues", repo.openIssues?.toString() ?: "Not available")
-            line("License", listOfNotNull(repo.licenseName, repo.licenseSpdxId).joinToString(" / ").ifBlank { "Not provided" })
-            line("Default branch", repo.defaultBranch ?: "Not provided")
-            line("Created", PortfolioPdfDataMapper.formatTimestamp(repo.createdAt))
-            line("Updated", PortfolioPdfDataMapper.formatTimestamp(repo.updatedAt))
-            line("Last pushed", PortfolioPdfDataMapper.formatTimestamp(repo.pushedAt))
-            line("Archived", repo.archived?.toString() ?: "Not available")
-            line("Fork", repo.fork?.toString() ?: "Not available")
-            repo.readmeUrl?.let { link("README", it) }
-            text("Repository metrics are context only and do not measure skill or project quality.", small)
-        }
+            val lines = mutableListOf<Pair<String, Paint>>()
+            lines.add("$number. ${repo.name}" to namePaint)
+            lines.add("Full name: ${repo.fullName}" to body)
+            repo.githubId?.let { lines.add("GitHub ID: $it" to body) }
+            lines.add("Repository: ${repo.url}" to small)
+            repo.description?.takeIf { it.isNotBlank() }?.let { lines.add("Description: $it" to body) }
+            lines.add("Primary language: ${repo.language ?: "Not specified"}" to body)
+            if (repo.topics.isNotEmpty()) {
+                lines.add("Topics: ${repo.topics.joinToString(", ")}" to body)
+            }
+            repo.stars?.let { lines.add("Stars: $it | Forks: ${repo.forks ?: 0} | Open issues: ${repo.openIssues ?: 0}" to body) }
+            repo.licenseName?.let { lines.add("License: $it" to body) }
+            repo.defaultBranch?.let { lines.add("Default branch: $it" to body) }
+            repo.createdAt?.let { lines.add("Created: ${PortfolioPdfDataMapper.formatTimestamp(it)}" to small) }
+            repo.updatedAt?.let { lines.add("Updated: ${PortfolioPdfDataMapper.formatTimestamp(it)}" to small) }
+            repo.readmeUrl?.let { lines.add("README: $it" to small) }
 
-        private fun line(label: String, value: String) {
-            text("$label: $value", body)
-        }
+            val contentWidth = (right - left) - 16f
+            val wrappedLines = mutableListOf<Pair<String, Paint>>()
+            for ((textVal, paint) in lines) {
+                wrap(textVal, paint, contentWidth).forEach { wrappedLine ->
+                    wrappedLines.add(wrappedLine to paint)
+                }
+            }
 
-        private fun link(label: String, value: String) {
-            text("$label: $value", small)
+            val padding = 8f
+            var totalHeight = padding * 2
+            for ((_, paint) in wrappedLines) {
+                totalHeight += paint.textSize + 4f
+            }
+
+            ensureSpace(totalHeight + 16f)
+
+            val boxTop = y
+            val boxBottom = y + totalHeight
+
+            val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL; color = 0xfff9fafb.toInt() }
+            val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; color = 0xffd1d5db.toInt(); strokeWidth = 1f }
+            canvas?.drawRoundRect(left, boxTop, right, boxBottom, 6f, 6f, fillPaint)
+            canvas?.drawRoundRect(left, boxTop, right, boxBottom, 6f, 6f, strokePaint)
+
+            y += padding
+            for ((wrappedLine, paint) in wrappedLines) {
+                canvas?.drawText(wrappedLine, left + padding, y + paint.textSize, paint)
+                y += paint.textSize + 4f
+            }
+            y += padding + 12f
         }
 
         private fun text(value: String, paint: Paint, spacing: Float = 0f) {
@@ -192,10 +290,6 @@ class PortfolioPdfGenerator(private val context: Context) {
             page?.let(document::finishPage)
             page = null
             canvas = null
-        }
-
-        companion object {
-            private const val CLEANUP_AFTER_MILLIS = 24 * 60 * 60 * 1000L
         }
     }
 }

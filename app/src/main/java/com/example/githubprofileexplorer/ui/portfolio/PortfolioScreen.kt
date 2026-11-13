@@ -14,11 +14,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.githubprofileexplorer.R
@@ -123,21 +125,25 @@ fun PortfolioScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(stringResource(R.string.portfolio_actions), style = MaterialTheme.typography.labelLarge)
+                        val isGenerating = state.exportState is PortfolioExportState.Generating
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                             Button(onClick = onToggleSaved, modifier = Modifier.fillMaxWidth()) {
                                 Text(stringResource(if (state.saved) R.string.remove_saved_profile else R.string.save_profile))
                             }
                             OutlinedButton(
                                 onClick = onExport,
-                                enabled = state.exportState !is PortfolioExportState.Generating,
+                                enabled = !isGenerating,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(Icons.Default.Share, contentDescription = stringResource(R.string.share_portfolio))
-                                if (state.exportState is PortfolioExportState.Generating) {
-                                    CircularProgressIndicator(modifier = Modifier.padding(start = 8.dp).height(18.dp), strokeWidth = 2.dp)
-                                } else {
-                                    Text(stringResource(R.string.share_portfolio), modifier = Modifier.padding(start = 4.dp))
-                                }
+                                Text(if (isGenerating) "Exporting Portfolio..." else stringResource(R.string.share_portfolio), modifier = Modifier.padding(start = 4.dp))
+                            }
+                            if (isGenerating) {
+                                LinearProgressIndicator(
+                                    modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(1.5.dp)),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                                )
                             }
                         }
                         when (state.exportState) {

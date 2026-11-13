@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +27,7 @@ import com.example.githubprofileexplorer.ui.components.AppCard
 import com.example.githubprofileexplorer.ui.components.AppIcons
 import com.example.githubprofileexplorer.ui.components.HealthBadge
 import com.example.githubprofileexplorer.ui.components.LanguageLabel
+import com.example.githubprofileexplorer.ui.components.SkeletonBox
 import com.example.githubprofileexplorer.ui.components.TagChip
 import com.example.githubprofileexplorer.ui.components.WrappingRow
 import androidx.compose.material.icons.filled.Bookmark
@@ -105,7 +106,7 @@ fun RepoCard(
                 }
                 IconButton(onClick = onDownload, enabled = !downloading) {
                     if (downloading) {
-                        CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                        SkeletonBox(Modifier.size(16.dp), CircleShape)
                     } else {
                         Icon(AppIcons.Download, contentDescription = stringResource(R.string.download_zip))
                     }

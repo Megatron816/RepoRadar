@@ -11,6 +11,7 @@ import java.util.Locale
 data class PortfolioPdfData(
     val profile: PortfolioPdfProfile,
     val repositories: List<PortfolioPdfRepository>,
+    val aiPortfolioWriting: String?,
     val generatedAt: Long,
     val fetchedAt: Long?,
     val isStale: Boolean
@@ -58,7 +59,8 @@ object PortfolioPdfDataMapper {
         profile: Profile,
         selectedProjects: List<PortfolioProjectEntity>,
         fetchedAt: Long?,
-        generatedAt: Long = System.currentTimeMillis()
+        generatedAt: Long = System.currentTimeMillis(),
+        aiPortfolioWriting: String? = null
     ): PortfolioPdfData {
         val reposByKey = profile.repos.associateBy { it.portfolioRepositoryKey() }
         val repositories = selectedProjects.map { selected ->
@@ -68,6 +70,7 @@ object PortfolioPdfDataMapper {
         return PortfolioPdfData(
             profile = profile.user.toPdfProfile(),
             repositories = repositories,
+            aiPortfolioWriting = aiPortfolioWriting,
             generatedAt = generatedAt,
             fetchedAt = fetchedAt,
             isStale = fetchedAt == null || generatedAt - fetchedAt > STALE_AFTER_MILLIS

@@ -15,12 +15,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -54,6 +55,7 @@ import com.example.githubprofileexplorer.ui.components.CenteredContent
 import com.example.githubprofileexplorer.ui.components.EmptyState
 import com.example.githubprofileexplorer.ui.components.ErrorState
 import com.example.githubprofileexplorer.ui.components.LoadingState
+import com.example.githubprofileexplorer.ui.components.RepoCardSkeleton
 import com.example.githubprofileexplorer.ui.components.SectionCard
 import com.example.githubprofileexplorer.ui.components.StatTile
 import com.example.githubprofileexplorer.ui.components.errorMessage
@@ -183,8 +185,14 @@ private fun ProfileContent(
 
         if (reloadingRepos) {
             item(key = "repos-loading") {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(1.5.dp)),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                    )
+                    RepoCardSkeleton()
+                    RepoCardSkeleton()
                 }
             }
         } else if (profile.reposError != null) {

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -19,7 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -38,6 +39,7 @@ import com.example.githubprofileexplorer.R
 import com.example.githubprofileexplorer.data.repository.GeminiError
 import com.example.githubprofileexplorer.ui.components.AppCard
 import com.example.githubprofileexplorer.ui.components.CenteredContent
+import com.example.githubprofileexplorer.ui.components.CompareSkeleton
 import com.example.githubprofileexplorer.ui.components.ErrorState
 import com.example.githubprofileexplorer.ui.components.SectionCard
 import com.example.githubprofileexplorer.ui.components.errorMessage
@@ -92,7 +94,7 @@ fun CompareScreen(
             }
 
             if (state.loading) {
-                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                CompareSkeleton()
             }
 
             state.result?.let {
@@ -211,13 +213,14 @@ private fun AiComparisonSection(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         ) {
-            if (aiState.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp).padding(end = 8.dp),
-                    strokeWidth = 2.dp
-                )
-            }
-            Text(stringResource(R.string.compare_ai_generate))
+            Text(if (aiState.isLoading) "Generating Comparison..." else stringResource(R.string.compare_ai_generate))
+        }
+        if (aiState.isLoading) {
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(1.5.dp)),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+            )
         }
 
         OutlinedTextField(
